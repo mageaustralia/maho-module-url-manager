@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<layout>
+
+    <adminhtml_redirect_index>
+        <reference name="content">
+            <block type="mageaus_urlmanager/adminhtml_redirect" name="redirect" />
+        </reference>
+    </adminhtml_redirect_index>
+
+    <adminhtml_redirect_grid>
+        <block name="root" type="mageaus_urlmanager/adminhtml_redirect_grid" />
+    </adminhtml_redirect_grid>
+
+    <adminhtml_redirect_edit>
+        <reference name="content">
+            <block type="mageaus_urlmanager/adminhtml_redirect_edit" name="redirect.edit" />
+        </reference>
+    </adminhtml_redirect_edit>
+
+    <adminhtml_notfoundlog_index>
+        <reference name="content">
+            <block type="mageaus_urlmanager/adminhtml_notfoundlog" name="notfound_log" />
+        </reference>
+    </adminhtml_notfoundlog_index>
+
+    <adminhtml_notfoundlog_grid>
+        <block name="root" type="mageaus_urlmanager/adminhtml_notfoundlog_grid" />
+    </adminhtml_notfoundlog_grid>
+
+    <adminhtml_notfoundlog_edit>
+        <update handle="editor"/>
+        <reference name="content">
+            <block type="mageaus_urlmanager/adminhtml_notfoundlog_edit" name="notfound_log.edit" />
+        </reference>
+    </adminhtml_notfoundlog_edit>
+</layout>

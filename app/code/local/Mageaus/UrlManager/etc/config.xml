@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Mageaus_UrlManager>
+            <version>1.1.0</version>
+        </Mageaus_UrlManager>
+    </modules>
+
+    <global>
+        <models>
+            <mageaus_urlmanager>
+                <class>Mageaus_UrlManager_Model</class>
+                <resourceModel>mageaus_urlmanager_resource</resourceModel>
+            </mageaus_urlmanager>
+            <mageaus_urlmanager_resource>
+                <class>Mageaus_UrlManager_Model_Resource</class>
+                <entities>
+                    <redirect>
+                        <table>mageaus_urlmanager_redirect</table>
+                    </redirect>
+                    <notfoundlog>
+                        <table>mageaus_urlmanager_notfoundlog</table>
+                    </notfoundlog>
+                </entities>
+            </mageaus_urlmanager_resource>
+        </models>
+
+        <resources>
+            <mageaus_urlmanager_setup>
+                <setup>
+                    <module>Mageaus_UrlManager</module>
+                </setup>
+            </mageaus_urlmanager_setup>
+        </resources>
+
+        <blocks>
+            <mageaus_urlmanager>
+                <class>Mageaus_UrlManager_Block</class>
+            </mageaus_urlmanager>
+        </blocks>
+
+        <helpers>
+            <mageaus_urlmanager>
+                <class>Mageaus_UrlManager_Helper</class>
+            </mageaus_urlmanager>
+        </helpers>
+
+        <!-- Events -->
+        <events>
+            <!-- URL Rewrite Events -->
+            <mageaus_urlmanager_redirect_save_after>
+                <observers>
+                    <mageaus_urlmanager_url_rewrite>
+                        <class>mageaus_urlmanager/observer_urlRewrite</class>
+                        <method>generateRedirectUrlRewrite</method>
+                    </mageaus_urlmanager_url_rewrite>
+                    <mageaus_urlmanager_clear_404_logs>
+                        <class>mageaus_urlmanager/observer</class>
+                        <method>clearMatchingNotFoundLogs</method>
+                    </mageaus_urlmanager_clear_404_logs>
+                </observers>
+            </mageaus_urlmanager_redirect_save_after>
+            <mageaus_urlmanager_redirect_delete_after>
+                <observers>
+                    <mageaus_urlmanager_url_rewrite_delete>
+                        <class>mageaus_urlmanager/observer_urlRewrite</class>
+                        <method>deleteRedirectUrlRewrite</method>
+                    </mageaus_urlmanager_url_rewrite_delete>
+                </observers>
+            </mageaus_urlmanager_redirect_delete_after>
+
+            <!-- Router Registration -->
+            <controller_front_init_routers>
+                <observers>
+                    <mageaus_urlmanager_init_routers>
+                        <type>singleton</type>
+                        <class>Mageaus_UrlManager_Model_Observer</class>
+                        <method>initRouters</method>
+                    </mageaus_urlmanager_init_routers>
+                </observers>
+            </controller_front_init_routers>
+
+            <!-- 404 Logger -->
+            <controller_front_send_response_before>
+                <observers>
+                    <mageaus_urlmanager_log_not_found>
+                        <class>mageaus_urlmanager/observer</class>
+                        <method>logNotFound</method>
+                    </mageaus_urlmanager_log_not_found>
+                </observers>
+            </controller_front_send_response_before>
+        </events>
+    </global>
+
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <mageaus_urlmanager before="Mage_Adminhtml">Mageaus_UrlManager_Adminhtml</mageaus_urlmanager>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+
+    <frontend>
+        <routers>
+            <mageaus_urlmanager>
+                <use>standard</use>
+                <args>
+                    <module>Mageaus_UrlManager</module>
+                    <frontName>urlmanager</frontName>
+                </args>
+            </mageaus_urlmanager>
+        </routers>
+        <layout>
+            <updates>
+                <mageaus_urlmanager>
+                    <file>mageaus/urlmanager.xml</file>
+                </mageaus_urlmanager>
+            </updates>
+        </layout>
+    </frontend>
+
+    <adminhtml>
+        <layout>
+            <updates>
+                <mageaus_urlmanager>
+                    <file>mageaus/urlmanager.xml</file>
+                </mageaus_urlmanager>
+            </updates>
+        </layout>
+
+        <menu>
+            <mageaus_urlmanager translate="title">
+                <title>UrlManager</title>
+                <sort_order>80</sort_order>
+                <children>
+                    <redirect translate="title">
+                        <title>URL Redirect</title>
+                        <action>adminhtml/redirect/index</action>
+                        <sort_order>10</sort_order>
+                    </redirect>
+                    <notfound_log translate="title">
+                        <title>404 Not Found Log</title>
+                        <action>adminhtml/notfoundlog/index</action>
+                        <sort_order>20</sort_order>
+                    </notfound_log>
+                </children>
+            </mageaus_urlmanager>
+        </menu>
+    </adminhtml>
+
+    <crontab>
+        <jobs>
+            <mageaus_urlmanager_send_daily_report>
+                <schedule><cron_expr>0 8 * * *</cron_expr></schedule>
+                <run><model>mageaus_urlmanager/observer::sendDailyReport</model></run>
+            </mageaus_urlmanager_send_daily_report>
+            <mageaus_urlmanager_send_weekly_report>
+                <schedule><cron_expr>0 8 * * 1</cron_expr></schedule>
+                <run><model>mageaus_urlmanager/observer::sendWeeklyReport</model></run>
+            </mageaus_urlmanager_send_weekly_report>
+        </jobs>
+    </crontab>
+
+</config>

@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Maho
+ *
+ * @category   Mageaus
+ * @package    Mageaus_UrlManager
+ * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com)
+ * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
+ */
+-->
+<config>
+    <tabs>
+        <mageaus translate="label">
+            <label>Mageaus</label>
+            <sort_order>200</sort_order>
+        </mageaus>
+    </tabs>
+    <sections>
+        <mageaus_urlmanager translate="label">
+            <label>URL Manager</label>
+            <tab>mageaus</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>100</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <!-- Redirect Settings -->
+                <redirects translate="label">
+                    <label>Redirect Settings</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label comment">
+                            <label>Enable URL Manager</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enable/disable redirect management</comment>
+                        </enabled>
+                        <wildcard_character translate="label comment">
+                            <label>Wildcard Character</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Character to use for wildcard matching (e.g., /old-path/*)</comment>
+                        </wildcard_character>
+                        <case_sensitive translate="label comment">
+                            <label>Case Sensitive Matching</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Whether URL matching should be case sensitive</comment>
+                        </case_sensitive>
+                        <strip_query_string translate="label comment">
+                            <label>Strip Query String</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Remove query string before matching URLs</comment>
+                        </strip_query_string>
+                    </fields>
+                </redirects>
+
+                <!-- 404 Logging Settings -->
+                <logging translate="label">
+                    <label>404 Logging</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label comment">
+                            <label>Enable 404 Logging</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Log 404 errors for analysis</comment>
+                        </enabled>
+                        <log_bots translate="label comment">
+                            <label>Log Bot Traffic</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Include bot/crawler 404s in logs</comment>
+                        </log_bots>
+                        <max_log_entries translate="label comment">
+                            <label>Maximum Log Entries</label>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits</validate>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Maximum number of 404 log entries to keep (0 = unlimited)</comment>
+                        </max_log_entries>
+                    </fields>
+                </logging>
+
+                <!-- Email Notifications -->
+                <email_notifications translate="label">
+                    <label>Email Notifications</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>25</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label comment">
+                            <label>Enable Email Notifications</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Send email reports of high-traffic 404 errors</comment>
+                        </enabled>
+                        <frequency translate="label comment">
+                            <label>Report Frequency</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>mageaus_urlmanager/adminhtml_system_config_source_frequency</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>How often to send 404 error reports</comment>
+                        </frequency>
+                        <recipient_email translate="label comment">
+                            <label>Recipient Email</label>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-email</validate>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Email address to send reports to</comment>
+                        </recipient_email>
+                        <minimum_hits translate="label comment">
+                            <label>Minimum Hit Count</label>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-greater-than-zero</validate>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Only include 404 URLs with at least this many hits in the report</comment>
+                        </minimum_hits>
+                    </fields>
+                </email_notifications>
+
+                <!-- Smart Suggestions -->
+                <suggestions translate="label">
+                    <label>Smart Suggestions</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>30</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label comment">
+                            <label>Enable Product Suggestions</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Show suggested products on 404 pages</comment>
+                        </enabled>
+                        <max_suggestions translate="label comment">
+                            <label>Maximum Suggestions</label>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-digits validate-greater-than-zero</validate>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Number of products to suggest on 404 page</comment>
+                        </max_suggestions>
+                        <use_meilisearch translate="label comment">
+                            <label>Use Meilisearch for Suggestions</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Use Meilisearch for fuzzy matching (faster, better results)</comment>
+                        </use_meilisearch>
+                    </fields>
+                </suggestions>
+
+                <!-- Automatic Redirects -->
+                <auto_redirects translate="label">
+                    <label>Automatic Redirects</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>40</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <disabled_products translate="label comment">
+                            <label>Disabled Products Check</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Redirect disabled products to their category</comment>
+                        </disabled_products>
+                        <not_visible_products translate="label comment">
+                            <label>Not Visible Products Check</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Redirect individually not visible products</comment>
+                        </not_visible_products>
+                        <disabled_categories translate="label comment">
+                            <label>Disabled Categories Check</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Redirect disabled categories to parent category</comment>
+                        </disabled_categories>
+                    </fields>
+                </auto_redirects>
+
+                <!-- CSV Import/Export -->
+                <csv translate="label">
+                    <label>CSV Import/Export</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>50</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <heading translate="label comment">
+                            <label>Redirects System v1.0</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[
+                                <strong>CSV Format (three columns):</strong><br/>
+                                http://domain.com/old-path/,http://domain.com/new-path/,301<br/><br/>
+                                <strong>You can use wildcards!</strong><br/>
+                                http://domain.com/old-*,http://domain.com/new-path/,301<br/><br/>
+                                The above example will redirect every 404 URL starting with http://domain.com/old- to http://domain.com/new-path/<br/><br/>
+                                <small>To cater to different CSV formats, I have provided separator and wildcard customisation below.</small>
+                            ]]></comment>
+                        </heading>
+                        <import_file translate="label comment">
+                            <label>Upload Redirects File</label>
+                            <frontend_type>file</frontend_type>
+                            <backend_model>mageaus_urlmanager/adminhtml_system_config_backend_csvimport</backend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>If you have already uploaded a CSV file and wish to add or edit the URLs, please download the current CSV file and reupload that file after making the changes.</comment>
+                        </import_file>
+                        <download_link translate="label comment">
+                            <label>Download Current Redirects</label>
+                            <frontend_type>label</frontend_type>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[<a href="../redirect/exportCsv" target="_blank"><strong>Download CSV File</strong></a> - Right click and select 'Save Link As...']]></comment>
+                        </download_link>
+                        <skip_duplicates translate="label comment">
+                            <label>Skip Duplicates on Import</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>Skip duplicate source URLs (if No, existing redirects will be updated)</comment>
+                        </skip_duplicates>
+                        <delimiter translate="label comment">
+                            <label>CSV Delimiter</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>Delimiter character for CSV files</comment>
+                        </delimiter>
+                        <enclosure translate="label comment">
+                            <label>CSV Enclosure</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>Enclosure character for CSV fields</comment>
+                        </enclosure>
+                    </fields>
+                </csv>
+            </groups>
+        </mageaus_urlmanager>
+    </sections>
+</config>
