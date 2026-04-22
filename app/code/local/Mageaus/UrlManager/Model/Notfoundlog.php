@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * Maho
+ *
+ * @category   Mageaus
+ * @package    Mageaus_UrlManager
+ * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com)
+ */
+
+/**
+ * Notfoundlog Model
+ *
+ * @category   Mageaus
+ * @package    Mageaus_UrlManager
+ */
+class Mageaus_UrlManager_Model_Notfoundlog extends Mage_Core_Model_Abstract
+{
+    public const STATUS_ENABLED  = 1;
+    public const STATUS_DISABLED = 0;
+
+    protected $_eventPrefix = 'mageaus_urlmanager_notfound_log';
+    protected $_eventObject = 'notfound_log';
+
+    protected function _construct(): void
+    {
+        $this->_init('mageaus_urlmanager/notfoundlog');
+    }
+
+    /**
+     * Get available statuses
+     */
+    public static function getAvailableStatuses(): array
+    {
+        return [
+            self::STATUS_ENABLED  => Mage::helper('mageaus_urlmanager')->__('Enabled'),
+            self::STATUS_DISABLED => Mage::helper('mageaus_urlmanager')->__('Disabled'),
+        ];
+    }
+}

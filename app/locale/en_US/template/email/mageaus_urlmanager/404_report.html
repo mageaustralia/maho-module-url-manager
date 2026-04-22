@@ -1,0 +1,81 @@
+<!--@subject 404 Not Found Report - {{var period}} @-->
+<!--@vars
+{"store url=\"\"":"Store Url",
+"var logo_url":"Email Logo Image Url",
+"var logo_alt":"Email Logo Image Alt",
+"var period":"Report Period",
+"var total_404s":"Total 404 Count",
+"var top_404s":"Top 404 URLs Array"}
+@-->
+
+{{template config_path="design/email/header"}}
+
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="border:0;margin:0;padding:0;">
+    <tr>
+        <td align="center" valign="top" style="background:#FFFFFF; padding:20px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="650" style="border:1px solid #E0E0E0;">
+                <tr>
+                    <td bgcolor="#ECF0F1" style="padding:20px;">
+                        <h1 style="font-size:22px; font-weight:normal; line-height:22px; margin:0 0 12px 0; color:#3D3D3D;">
+                            404 Not Found Report
+                        </h1>
+                        <p style="font-size:14px; line-height:20px; margin:0; color:#7F8C8D;">
+                            Report Period: <strong>{{var period}}</strong>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:20px; background:#FFFFFF;">
+                        <h2 style="font-size:18px; font-weight:normal; line-height:22px; margin:0 0 15px 0; color:#3D3D3D;">
+                            Summary
+                        </h2>
+                        <p style="font-size:14px; line-height:20px; margin:0 0 15px 0; color:#555555;">
+                            Total 404 errors with significant traffic: <strong>{{var total_404s}}</strong>
+                        </p>
+
+                        <h2 style="font-size:18px; font-weight:normal; line-height:22px; margin:20px 0 15px 0; color:#3D3D3D;">
+                            Top 404 URLs
+                        </h2>
+
+                        <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse:collapse;">
+                            <thead>
+                                <tr style="background:#ECF0F1;">
+                                    <th align="left" style="padding:10px; border-bottom:2px solid #BDC3C7; font-size:14px; color:#2C3E50;">
+                                        URL
+                                    </th>
+                                    <th align="center" style="padding:10px; border-bottom:2px solid #BDC3C7; font-size:14px; color:#2C3E50; width:80px;">
+                                        Hits
+                                    </th>
+                                    <th align="center" style="padding:10px; border-bottom:2px solid #BDC3C7; font-size:14px; color:#2C3E50; width:120px;">
+                                        Last Hit
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{block type='core/template' area='frontend' template='email/mageaus_urlmanager/404_report_rows.phtml' top_404s=$top_404s}}
+                            </tbody>
+                        </table>
+
+                        <p style="font-size:14px; line-height:20px; margin:20px 0 0 0; color:#555555;">
+                            <strong>Recommended Actions:</strong>
+                        </p>
+                        <ul style="font-size:14px; line-height:24px; margin:10px 0; padding-left:20px; color:#555555;">
+                            <li>Create redirects for high-traffic 404 URLs</li>
+                            <li>Check for broken internal links</li>
+                            <li>Review external links pointing to your site</li>
+                            <li>Consider creating content for frequently requested URLs</li>
+                        </ul>
+
+                        <p style="font-size:14px; line-height:20px; margin:20px 0 0 0; color:#555555;">
+                            <a href="{{store url="twbackoffice/notfoundlog/index"}}" style="color:#3498DB; text-decoration:none;">
+                                View Full 404 Log in Admin Panel →
+                            </a>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer"}}

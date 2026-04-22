@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * Maho
+ *
+ * @category   Mageaus
+ * @package    Mageaus_UrlManager
+ * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com)
+ */
+
+class Mageaus_UrlManager_Block_Adminhtml_Notfoundlog_Edit extends Mage_Adminhtml_Block_Widget_Form_Container
+{
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->_objectId = 'id';
+        $this->_blockGroup = 'mageaus_urlmanager';
+        $this->_controller = 'adminhtml_notfoundlog';
+
+        $this->_updateButton('save', 'label', Mage::helper('mageaus_urlmanager')->__('Save 404 Log Entry'));
+        $this->_updateButton('delete', 'label', Mage::helper('mageaus_urlmanager')->__('Delete 404 Log Entry'));
+
+        $this->_addButton('saveandcontinue', [
+            'label' => Mage::helper('mageaus_urlmanager')->__('Save and Continue Edit'),
+            'onclick' => 'saveAndContinueEdit()',
+            'class' => 'save',
+        ], -100);
+
+        $this->_formScripts[] = "
+            function saveAndContinueEdit() {
+                editForm.submit($('edit_form').action + 'back/edit/');
+            }
+        ";
+    }
+
+    #[\Override]
+    public function getHeaderText()
+    {
+        if (Mage::registry('current_notfoundlog')->getId()) {
+            return Mage::helper('mageaus_urlmanager')->__('Edit 404 Log Entry');
+        } else {
+            return Mage::helper('mageaus_urlmanager')->__('New 404 Log Entry');
+        }
+    }
+}

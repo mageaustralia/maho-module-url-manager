@@ -1,0 +1,107 @@
+<?php
+/**
+ * @var $this Mageaus_UrlManager_Block_Suggestions
+ */
+Mage::log('Template suggestions.phtml - Starting execution', null, 'urlmanager_debug.log');
+$products = $this->getSuggestedProducts();
+Mage::log('Template suggestions.phtml - Got products', null, 'urlmanager_debug.log');
+$categories = $this->getSuggestedCategories();
+Mage::log('Template suggestions.phtml - Got categories: ' . ($categories ? count($categories) : 'null'), null, 'urlmanager_debug.log');
+$pages = $this->getSuggestedPages();
+Mage::log('Template suggestions.phtml - Got pages: ' . ($pages ? count($pages) : 'null'), null, 'urlmanager_debug.log');
+$searchTerm = $this->getSearchTerm();
+Mage::log('Template suggestions.phtml - Search term: ' . $searchTerm, null, 'urlmanager_debug.log');
+
+// ALWAYS show categories and pages section for debugging
+if ($categories || $pages):
+?>
+<div class="urlmanager-pages-categories" style="margin: 40px 0 20px 0; padding: 20px; background: #e8f4f8; border-radius: 8px; border-left: 4px solid #3498db;">
+    <h2 style="margin-bottom: 15px; color: #2c3e50; font-size: 22px;">
+        <?php echo $this->__("Here's some pages you might be looking for"); ?>
+    </h2>
+
+    <?php if ($categories && count($categories) > 0): ?>
+        <div class="suggested-categories" style="margin-bottom: 20px;">
+            <h3 style="font-size: 18px; color: #34495e; margin-bottom: 10px;">Categories:</h3>
+            <ul style="list-style: none; padding: 0;">
+                <?php foreach ($categories as $category): ?>
+                    <li style="margin-bottom: 8px;">
+                        <a href="<?php echo $category->url; ?>" style="color: #2980b9; text-decoration: none; font-size: 16px;">
+                            → <?php echo $this->escapeHtml($category->name); ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($pages && count($pages) > 0): ?>
+        <div class="suggested-pages">
+            <h3 style="font-size: 18px; color: #34495e; margin-bottom: 10px;">Pages:</h3>
+            <ul style="list-style: none; padding: 0;">
+                <?php foreach ($pages as $page): ?>
+                    <li style="margin-bottom: 8px;">
+                        <a href="<?php echo $page->url; ?>" style="color: #2980b9; text-decoration: none; font-size: 16px;">
+                            → <?php echo $this->escapeHtml($page->title); ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+</div>
+<?php
+endif;
+
+// Show product suggestions
+if ($products && $products->getSize() > 0):
+?>
+<div class="urlmanager-suggestions" style="margin: 40px 0; padding: 30px; background: #f9f9f9; border-radius: 8px;">
+    <h2 style="margin-bottom: 20px; color: #333; font-size: 24px;">
+        <?php if ($searchTerm): ?>
+            <?php echo $this->__('We found these products related to "%s":', $this->escapeHtml($searchTerm)); ?>
+        <?php else: ?>
+            <?php echo $this->__('You might be interested in these products:'); ?>
+        <?php endif; ?>
+    </h2>
+
+    <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+        <?php foreach ($products as $product): ?>
+            <div class="product-item" style="background: #fff; padding: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <a href="<?php echo $product->getProductUrl(); ?>" style="text-decoration: none; color: inherit;">
+                    <?php if ($product->getImage() && $product->getImage() != 'no_selection'): ?>
+                        <img src="<?php echo $this->helper('catalog/image')->init($product, 'small_image')->resize(200); ?>"
+                             alt="<?php echo $this->escapeHtml($product->getName()); ?>"
+                             style="max-width: 100%; height: auto; margin-bottom: 10px;" />
+                    <?php else: ?>
+                        <div style="width: 200px; height: 200px; background: #eee; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                            <span style="color: #999;"><?php echo $this->__('No Image'); ?></span>
+                        </div>
+                    <?php endif; ?>
+
+                    <h3 style="font-size: 16px; margin: 10px 0; color: #333; min-height: 40px;">
+                        <?php echo $this->escapeHtml($product->getName()); ?>
+                    </h3>
+
+                    <?php if ($product->getFinalPrice() > 0): ?>
+                        <p class="price" style="font-size: 18px; font-weight: bold; color: #e74c3c; margin: 10px 0;">
+                            <?php echo Mage::helper('core')->currency($product->getFinalPrice(), true, false); ?>
+                        </p>
+                    <?php endif; ?>
+
+                    <button type="button" style="background: #3498db; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 10px;">
+                        <?php echo $this->__('View Product'); ?>
+                    </button>
+                </a>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="<?php echo $this->getUrl('catalogsearch/result', ['q' => $searchTerm]); ?>"
+           style="display: inline-block; padding: 12px 30px; background: #2c3e50; color: #fff; text-decoration: none; border-radius: 4px; font-size: 16px;">
+            <?php echo $this->__('View All Search Results'); ?>
+        </a>
+    </div>
+</div>
+<?php endif; ?>
