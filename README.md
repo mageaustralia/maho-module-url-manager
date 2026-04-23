@@ -1,5 +1,8 @@
 # Mageaus_UrlManager
 
+[![CI](https://github.com/mageaustralia/maho-module-url-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/mageaustralia/maho-module-url-manager/actions/workflows/ci.yml)
+[![License: OSL-3.0](https://img.shields.io/badge/license-OSL--3.0-blue.svg)](LICENSE)
+
 URL redirect management + 404 logging + scheduled email reports for Maho.
 
 ## Features
@@ -12,7 +15,7 @@ URL redirect management + 404 logging + scheduled email reports for Maho.
 
 ## Requirements
 
-- Maho 8.3+
+- Maho 26.3+
 - PHP 8.3+
 
 ## Installation
