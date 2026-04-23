@@ -1,11 +1,11 @@
 <!--@subject 404 Not Found Report - {{var period}} @-->
 <!--@vars
 {"store url=\"\"":"Store Url",
-"var logo_url":"Email Logo Image Url",
-"var logo_alt":"Email Logo Image Alt",
 "var period":"Report Period",
 "var total_404s":"Total 404 Count",
-"var top_404s":"Top 404 URLs Array"}
+"var top_404s":"Top 404 URLs Array (rendered by 404_report_rows.phtml block)",
+"var store_name":"Store Name",
+"var admin_url":"Admin Panel URL"}
 @-->
 
 {{template config_path="design/email/header"}}
@@ -67,7 +67,7 @@
                         </ul>
 
                         <p style="font-size:14px; line-height:20px; margin:20px 0 0 0; color:#555555;">
-                            <a href="{{store url="twbackoffice/notfoundlog/index"}}" style="color:#3498DB; text-decoration:none;">
+                            <a href="{{var admin_url}}" style="color:#3498DB; text-decoration:none;">
                                 View Full 404 Log in Admin Panel →
                             </a>
                         </p>
