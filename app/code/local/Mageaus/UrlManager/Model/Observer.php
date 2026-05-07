@@ -118,7 +118,7 @@ class Mageaus_UrlManager_Model_Observer
             if ($isMatch) {
                 // Update hit statistics
                 $redirect->setHitCount($redirect->getHitCount() + 1);
-                $redirect->setLastHitAt(Mage_Core_Model_Locale::now());
+                $redirect->setLastHitAt(Mage_Core_Model_Locale::nowUtc());
                 $redirect->save();
 
                 // Perform redirect
@@ -198,7 +198,7 @@ class Mageaus_UrlManager_Model_Observer
             /** @var Mageaus_UrlManager_Model_Notfoundlog $log */
             $log = $collection->getFirstItem();
             $log->setHitCount($log->getHitCount() + 1);
-            $log->setLastHitAt(Mage_Core_Model_Locale::now());
+            $log->setLastHitAt(Mage_Core_Model_Locale::nowUtc());
         } else {
             // Create new entry
             $log = Mage::getModel('mageaus_urlmanager/notfoundlog');
@@ -209,7 +209,7 @@ class Mageaus_UrlManager_Model_Observer
                 'ip_address' => $request->getClientIp(),
                 'store_id' => Mage::app()->getStore()->getId(),
                 'hit_count' => 1,
-                'last_hit_at' => Mage_Core_Model_Locale::now(),
+                'last_hit_at' => Mage_Core_Model_Locale::nowUtc(),
             ]);
 
             // Try to find suggested product using fuzzy matching
@@ -575,7 +575,7 @@ class Mageaus_UrlManager_Model_Observer
                     $writeAdapter = Mage::getSingleton('core/resource')->getConnection('core_write');
                     $writeAdapter->update(
                         Mage::getSingleton('core/resource')->getTableName('mageaus_urlmanager/notfoundlog'),
-                        ['last_reported_at' => Mage_Core_Model_Locale::now()],
+                        ['last_reported_at' => Mage_Core_Model_Locale::nowUtc()],
                         ['notfound_log_id IN (?)' => $reportedIds],
                     );
                 }
