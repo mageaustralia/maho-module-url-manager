@@ -29,6 +29,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         return $this;
     }
 
+    #[\Maho\Config\Route('/admin/redirect/index')]
     public function indexAction(): void
     {
         $this->_title($this->__('Manage Redirect'));
@@ -36,17 +37,20 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/admin/redirect/grid')]
     public function gridAction(): void
     {
         $this->loadLayout();
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/admin/redirect/new')]
     public function newAction(): void
     {
         $this->_forward('edit');
     }
 
+    #[\Maho\Config\Route('/admin/redirect/edit')]
     public function editAction(): void
     {
         $id = $this->getRequest()->getParam('id');
@@ -76,6 +80,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/admin/redirect/save')]
     public function saveAction(): void
     {
         if ($data = $this->getRequest()->getPost()) {
@@ -112,6 +117,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/admin/redirect/delete')]
     public function deleteAction(): void
     {
         if ($id = $this->getRequest()->getParam('id')) {
@@ -132,6 +138,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/admin/redirect/massDelete')]
     public function massDeleteAction(): void
     {
         $ids = $this->getRequest()->getParam('ids');
@@ -158,6 +165,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/index');
     }
 
+    #[\Maho\Config\Route('/admin/redirect/importCsv')]
     public function importCsvAction(): void
     {
         if (!$this->getRequest()->isPost()) {
@@ -220,6 +228,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/index');
     }
 
+    #[\Maho\Config\Route('/admin/redirect/exportCsv')]
     public function exportCsvAction(): void
     {
         try {

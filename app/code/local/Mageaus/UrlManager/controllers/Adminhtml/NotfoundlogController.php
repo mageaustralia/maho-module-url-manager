@@ -29,6 +29,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         return $this;
     }
 
+    #[\Maho\Config\Route('/admin/notfoundlog/index')]
     public function indexAction(): void
     {
         $this->_title($this->__('Manage Notfound_log'));
@@ -36,17 +37,20 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/admin/notfoundlog/grid')]
     public function gridAction(): void
     {
         $this->loadLayout();
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/admin/notfoundlog/new')]
     public function newAction(): void
     {
         $this->_forward('edit');
     }
 
+    #[\Maho\Config\Route('/admin/notfoundlog/edit')]
     public function editAction(): void
     {
         $id = $this->getRequest()->getParam('id');
@@ -76,6 +80,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/admin/notfoundlog/save')]
     public function saveAction(): void
     {
         if ($data = $this->getRequest()->getPost()) {
@@ -112,6 +117,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/admin/notfoundlog/delete')]
     public function deleteAction(): void
     {
         if ($id = $this->getRequest()->getParam('id')) {
@@ -132,6 +138,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/admin/notfoundlog/massDelete')]
     public function massDeleteAction(): void
     {
         $ids = $this->getRequest()->getParam('ids');
