@@ -109,7 +109,7 @@ class Mageaus_UrlManager_Controller_Router extends Mage_Core_Controller_Varien_R
 
                 // Update hit statistics
                 $redirect->setHitCount($redirect->getHitCount() + 1);
-                $redirect->setLastHitAt(Mage_Core_Model_Locale::now());
+                $redirect->setLastHitAt(Mage_Core_Model_Locale::nowUtc());
                 $redirect->save();
 
                 // Perform redirect
