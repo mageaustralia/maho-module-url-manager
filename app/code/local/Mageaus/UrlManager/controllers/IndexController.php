@@ -19,6 +19,9 @@ class Mageaus_UrlManager_IndexController extends Mage_Core_Controller_Front_Acti
     /**
      * Index action - list all items
      */
+    #[\Maho\Config\Route('/urlmanager', name: 'urlmanager')]
+    #[\Maho\Config\Route('/urlmanager/index', name: 'urlmanager.index')]
+    #[\Maho\Config\Route('/urlmanager/index/index', name: 'urlmanager.index.index')]
     public function indexAction(): void
     {
         $this->loadLayout();
@@ -48,6 +51,7 @@ class Mageaus_UrlManager_IndexController extends Mage_Core_Controller_Front_Acti
     /**
      * View action - view single item
      */
+    #[\Maho\Config\Route('/urlmanager/index/view', name: 'urlmanager.index.view')]
     public function viewAction(): void
     {
         $id = $this->getRequest()->getParam('id');

@@ -105,15 +105,6 @@
     </admin>
 
     <frontend>
-        <routers>
-            <mageaus_urlmanager>
-                <use>standard</use>
-                <args>
-                    <module>Mageaus_UrlManager</module>
-                    <frontName>urlmanager</frontName>
-                </args>
-            </mageaus_urlmanager>
-        </routers>
         <layout>
             <updates>
                 <mageaus_urlmanager>

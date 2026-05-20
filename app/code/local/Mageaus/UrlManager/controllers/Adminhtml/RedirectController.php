@@ -18,6 +18,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
 {
     public const ADMIN_RESOURCE = 'mageaus_urlmanager/redirect';
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/_init', name: 'urlmanager.adminhtml_redirect._init')]
     protected function _initAction(): static
     {
         $this->loadLayout()
@@ -29,6 +30,8 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         return $this;
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect', name: 'urlmanager.adminhtml_redirect')]
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/index', name: 'urlmanager.adminhtml_redirect.index')]
     #[\Maho\Config\Route('/admin/redirect/index')]
     public function indexAction(): void
     {
@@ -37,6 +40,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/grid', name: 'urlmanager.adminhtml_redirect.grid')]
     #[\Maho\Config\Route('/admin/redirect/grid')]
     public function gridAction(): void
     {
@@ -44,12 +48,14 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/new', name: 'urlmanager.adminhtml_redirect.new')]
     #[\Maho\Config\Route('/admin/redirect/new')]
     public function newAction(): void
     {
         $this->_forward('edit');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/edit', name: 'urlmanager.adminhtml_redirect.edit')]
     #[\Maho\Config\Route('/admin/redirect/edit')]
     public function editAction(): void
     {
@@ -80,6 +86,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/save', name: 'urlmanager.adminhtml_redirect.save')]
     #[\Maho\Config\Route('/admin/redirect/save')]
     public function saveAction(): void
     {
@@ -117,6 +124,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/delete', name: 'urlmanager.adminhtml_redirect.delete')]
     #[\Maho\Config\Route('/admin/redirect/delete')]
     public function deleteAction(): void
     {
@@ -138,6 +146,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/massDelete', name: 'urlmanager.adminhtml_redirect.massDelete')]
     #[\Maho\Config\Route('/admin/redirect/massDelete')]
     public function massDeleteAction(): void
     {
@@ -165,6 +174,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/index');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/importCsv', name: 'urlmanager.adminhtml_redirect.importCsv')]
     #[\Maho\Config\Route('/admin/redirect/importCsv')]
     public function importCsvAction(): void
     {
@@ -228,6 +238,7 @@ class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Con
         $this->_redirect('*/*/index');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_redirect/exportCsv', name: 'urlmanager.adminhtml_redirect.exportCsv')]
     #[\Maho\Config\Route('/admin/redirect/exportCsv')]
     public function exportCsvAction(): void
     {

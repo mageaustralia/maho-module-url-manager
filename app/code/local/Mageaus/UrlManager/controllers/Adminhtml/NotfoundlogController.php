@@ -18,6 +18,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
 {
     public const ADMIN_RESOURCE = 'mageaus_urlmanager/notfoundlog';
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/_init', name: 'urlmanager.adminhtml_notfoundlog._init')]
     protected function _initAction(): static
     {
         $this->loadLayout()
@@ -29,6 +30,8 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         return $this;
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog', name: 'urlmanager.adminhtml_notfoundlog')]
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/index', name: 'urlmanager.adminhtml_notfoundlog.index')]
     #[\Maho\Config\Route('/admin/notfoundlog/index')]
     public function indexAction(): void
     {
@@ -37,6 +40,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/grid', name: 'urlmanager.adminhtml_notfoundlog.grid')]
     #[\Maho\Config\Route('/admin/notfoundlog/grid')]
     public function gridAction(): void
     {
@@ -44,12 +48,14 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/new', name: 'urlmanager.adminhtml_notfoundlog.new')]
     #[\Maho\Config\Route('/admin/notfoundlog/new')]
     public function newAction(): void
     {
         $this->_forward('edit');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/edit', name: 'urlmanager.adminhtml_notfoundlog.edit')]
     #[\Maho\Config\Route('/admin/notfoundlog/edit')]
     public function editAction(): void
     {
@@ -80,6 +86,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->renderLayout();
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/save', name: 'urlmanager.adminhtml_notfoundlog.save')]
     #[\Maho\Config\Route('/admin/notfoundlog/save')]
     public function saveAction(): void
     {
@@ -117,6 +124,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/delete', name: 'urlmanager.adminhtml_notfoundlog.delete')]
     #[\Maho\Config\Route('/admin/notfoundlog/delete')]
     public function deleteAction(): void
     {
@@ -138,6 +146,7 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
         $this->_redirect('*/*/');
     }
 
+    #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/massDelete', name: 'urlmanager.adminhtml_notfoundlog.massDelete')]
     #[\Maho\Config\Route('/admin/notfoundlog/massDelete')]
     public function massDeleteAction(): void
     {
