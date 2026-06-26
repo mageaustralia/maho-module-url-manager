@@ -18,6 +18,15 @@ class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_
 {
     public const ADMIN_RESOURCE = 'mageaus_urlmanager/notfoundlog';
 
+    #[\Override]
+    public function preDispatch()
+    {
+        // CSRF: save (edit form), delete (Form_Container button includes
+        // form_key), and massDelete (grid massaction) all carry form_key.
+        $this->_setForcedFormKeyActions(['save', 'delete', 'massDelete']);
+        return parent::preDispatch();
+    }
+
     #[\Maho\Config\Route('/urlmanager/adminhtml_notfoundlog/_init', name: 'urlmanager.adminhtml_notfoundlog._init')]
     protected function _initAction(): static
     {
