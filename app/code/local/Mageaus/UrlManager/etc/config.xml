@@ -45,6 +45,16 @@
             </mageaus_urlmanager>
         </helpers>
 
+        <template>
+            <email>
+                <mageaus_urlmanager_404_report translate="label" module="mageaus_urlmanager">
+                    <label>URL Manager - 404 Not Found Report</label>
+                    <file>mageaus_urlmanager/404_report.html</file>
+                    <type>html</type>
+                </mageaus_urlmanager_404_report>
+            </email>
+        </template>
+
         <!-- Events -->
         <events>
             <!-- URL Rewrite Events -->

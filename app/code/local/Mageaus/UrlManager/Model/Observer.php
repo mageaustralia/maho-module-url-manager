@@ -528,23 +528,14 @@ class Mageaus_UrlManager_Model_Observer
 
             $storeId = Mage::app()->getStore()->getId();
 
-            // Load template file
-            $templateFile = Mage::getBaseDir('locale') . DS . 'en_US' . DS . 'template' . DS . 'email' . DS . 'mageaus_urlmanager' . DS . '404_report.html';
-
-            if (!file_exists($templateFile)) {
-                Mage::log('404 report email template not found: ' . $templateFile, Mage::LOG_ERROR, 'mageaus_urlmanager.log');
-                return;
-            }
-
-            $templateContent = file_get_contents($templateFile);
-
             $emailTemplate = Mage::getModel('core/email_template');
             $emailTemplate->setDesignConfig(['area' => 'frontend', 'store' => $storeId]);
 
-            // Set template content and type
-            $emailTemplate->setTemplateSubject('404 Not Found Report - ' . $period);
-            $emailTemplate->setTemplateText($templateContent);
-            $emailTemplate->setTemplateType(Mage_Core_Model_Email_Template::TYPE_HTML);
+            // Load the registered template (config.xml -> global/template/email).
+            // The subject comes from the template's @subject directive and is
+            // processed with the vars passed to send(), so it is no longer
+            // hard-coded here and respects store-scoped/admin-edited overrides.
+            $emailTemplate->loadDefault('mageaus_urlmanager_404_report');
 
             // Set sender from general identity
             $senderName = Mage::getStoreConfig('trans_email/ident_general/name', $storeId);
