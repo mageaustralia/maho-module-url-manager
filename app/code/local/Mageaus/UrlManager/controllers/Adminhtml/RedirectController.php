@@ -19,7 +19,7 @@ declare(strict_types=1);
  */
 class Mageaus_UrlManager_Adminhtml_RedirectController extends Mage_Adminhtml_Controller_Action
 {
-    public const ADMIN_RESOURCE = 'mageaus_urlmanager/redirect';
+    public const ADMIN_RESOURCE = 'catalog/mageaus_urlmanager/redirect';
 
     #[\Override]
     public function preDispatch()

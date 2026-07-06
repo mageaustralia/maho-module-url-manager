@@ -19,7 +19,7 @@ declare(strict_types=1);
  */
 class Mageaus_UrlManager_Adminhtml_NotfoundlogController extends Mage_Adminhtml_Controller_Action
 {
-    public const ADMIN_RESOURCE = 'mageaus_urlmanager/notfoundlog';
+    public const ADMIN_RESOURCE = 'catalog/mageaus_urlmanager/notfound_log';
 
     #[\Override]
     public function preDispatch()
