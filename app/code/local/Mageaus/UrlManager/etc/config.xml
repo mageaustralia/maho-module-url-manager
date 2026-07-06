@@ -133,44 +133,6 @@
             </updates>
         </layout>
 
-        <menu>
-            <catalog>
-                <children>
-                    <mageaus_urlmanager translate="title">
-                        <title>Bulk URL Manager</title>
-                        <sort_order>200</sort_order>
-                        <children>
-                            <redirect translate="title">
-                                <title>Redirects</title>
-                                <action>adminhtml/redirect/index</action>
-                                <sort_order>10</sort_order>
-                            </redirect>
-                            <notfound_log translate="title">
-                                <title>Not Found Report</title>
-                                <action>adminhtml/notfoundlog/index</action>
-                                <sort_order>20</sort_order>
-                            </notfound_log>
-                        </children>
-                    </mageaus_urlmanager>
-                </children>
-            </catalog>
-            <report>
-                <children>
-                    <urls translate="title">
-                        <title>URLs</title>
-                        <sort_order>200</sort_order>
-                        <children>
-                            <notfound translate="title">
-                                <title>Not Found</title>
-                                <action>adminhtml/notfoundlog/index</action>
-                                <resource>catalog/mageaus_urlmanager/notfound_log</resource>
-                                <sort_order>10</sort_order>
-                            </notfound>
-                        </children>
-                    </urls>
-                </children>
-            </report>
-        </menu>
     </adminhtml>
 
     <crontab>
