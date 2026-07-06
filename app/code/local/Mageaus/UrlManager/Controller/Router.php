@@ -74,28 +74,47 @@ class Mageaus_UrlManager_Controller_Router extends Mage_Core_Controller_Varien_R
             /** @var Mageaus_UrlManager_Model_Redirect $redirect */
             $sourceUrl = trim((string) $redirect->getSourceUrl(), '/');
 
+            // Host-agnostic candidate: when the stored source is a FULL URL
+            // (virtually all imported rows are anchored to the production
+            // host), also match its path component - otherwise the whole
+            // table is dead on any other environment host (dev/staging) and
+            // untestable before cutover. Additive only: the original
+            // full-URL comparison still runs, so production behaviour is
+            // unchanged.
+            $candidates = [$sourceUrl];
+            if (str_starts_with($sourceUrl, 'http://') || str_starts_with($sourceUrl, 'https://')) {
+                $sourcePath = trim((string) (parse_url($sourceUrl, PHP_URL_PATH) ?: ''), '/');
+                if ($sourcePath !== '') {
+                    $candidates[] = $sourcePath;
+                }
+            }
+
             // Case sensitivity handling for source
-            $compareSourceUrl = $sourceUrl;
             if (!$helper->isCaseSensitive()) {
-                $compareSourceUrl = strtolower($sourceUrl);
+                $candidates = array_map('strtolower', $candidates);
             }
 
             // Check for match (try both request path and full URL)
             $isMatch = false;
 
-            if ($redirect->getIsWildcard()) {
-                // Wildcard matching
-                $pattern = str_replace(
-                    $helper->getWildcardCharacter(),
-                    '.*',
-                    preg_quote($compareSourceUrl, '/'),
-                );
-                $isMatch = preg_match('/^' . $pattern . '$/', $compareRequestPath) ||
-                           preg_match('/^' . $pattern . '$/', $compareFullUrl);
-            } else {
-                // Exact match (try both path and full URL)
-                $isMatch = ($compareSourceUrl === $compareRequestPath) ||
-                          ($compareSourceUrl === $compareFullUrl);
+            foreach ($candidates as $compareSourceUrl) {
+                if ($redirect->getIsWildcard()) {
+                    // Wildcard matching
+                    $pattern = str_replace(
+                        $helper->getWildcardCharacter(),
+                        '.*',
+                        preg_quote($compareSourceUrl, '/'),
+                    );
+                    $isMatch = preg_match('/^' . $pattern . '$/', $compareRequestPath) ||
+                               preg_match('/^' . $pattern . '$/', $compareFullUrl);
+                } else {
+                    // Exact match (try both path and full URL)
+                    $isMatch = ($compareSourceUrl === $compareRequestPath) ||
+                              ($compareSourceUrl === $compareFullUrl);
+                }
+                if ($isMatch) {
+                    break;
+                }
             }
 
             if ($isMatch) {

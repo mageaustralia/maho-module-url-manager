@@ -83,37 +83,60 @@ class Mageaus_UrlManager_Model_Observer
             /** @var Mageaus_UrlManager_Model_Redirect $redirect */
             $sourceUrl = trim((string) $redirect->getSourceUrl(), '/');
 
+            // Host-agnostic candidate: when the stored source is a FULL URL
+            // (virtually all imported rows are anchored to the production
+            // host), also match its path component. Otherwise the whole
+            // table is dead on any other environment host (dev/staging) and
+            // untestable before cutover. Additive only - the original
+            // full-URL comparison still runs, so production behaviour is
+            // unchanged.
+            $candidates = [$sourceUrl];
+            if (str_starts_with($sourceUrl, 'http://') || str_starts_with($sourceUrl, 'https://')) {
+                $sourcePath = trim((string) (parse_url($sourceUrl, PHP_URL_PATH) ?: ''), '/');
+                if ($sourcePath !== '') {
+                    $candidates[] = $sourcePath;
+                }
+            }
+
             // Case sensitivity handling
             if (!$helper->isCaseSensitive()) {
-                $sourceUrl = strtolower($sourceUrl);
+                $candidates = array_map('strtolower', $candidates);
             }
+            $sourceUrl = $candidates[0];
 
             // Check for match (try both request path and full URL)
             $isMatch = false;
 
-            if ($redirect->getIsWildcard()) {
-                // Wildcard matching
-                $pattern = str_replace(
-                    $helper->getWildcardCharacter(),
-                    '.*',
-                    preg_quote($sourceUrl, '/'),
-                );
-                $isMatch = preg_match('/^' . $pattern . '$/', $requestPath) ||
-                           preg_match('/^' . $pattern . '$/', $fullUrl);
-            } else {
-                // Exact match (try both path and full URL)
-                $isMatch = ($sourceUrl === $requestPath) || ($sourceUrl === $fullUrl);
+            foreach ($candidates as $candidate) {
+                if ($redirect->getIsWildcard()) {
+                    // Wildcard matching
+                    $pattern = str_replace(
+                        $helper->getWildcardCharacter(),
+                        '.*',
+                        preg_quote($candidate, '/'),
+                    );
+                    $isMatch = preg_match('/^' . $pattern . '$/', $requestPath) ||
+                               preg_match('/^' . $pattern . '$/', $fullUrl);
+                } else {
+                    // Exact match (try both path and full URL)
+                    $isMatch = ($candidate === $requestPath) || ($candidate === $fullUrl);
+                }
+                if ($isMatch) {
+                    break;
+                }
             }
 
-            Mage::log(sprintf(
-                'URL Manager Observer: Checking redirect #%d: %s (wildcard: %s) against %s / %s = %s',
-                $redirect->getId(),
-                $sourceUrl,
-                $redirect->getIsWildcard() ? 'yes' : 'no',
-                $requestPath,
-                $fullUrl,
-                $isMatch ? 'MATCH' : 'no match',
-            ), Mage::LOG_DEBUG, 'mageaus_urlmanager.log');
+            if (Mage::getIsDeveloperMode()) {
+                Mage::log(sprintf(
+                    'URL Manager Observer: Checking redirect #%d: %s (wildcard: %s) against %s / %s = %s',
+                    $redirect->getId(),
+                    $sourceUrl,
+                    $redirect->getIsWildcard() ? 'yes' : 'no',
+                    $requestPath,
+                    $fullUrl,
+                    $isMatch ? 'MATCH' : 'no match',
+                ), Mage::LOG_DEBUG, 'mageaus_urlmanager.log');
+            }
 
             if ($isMatch) {
                 // Update hit statistics
@@ -528,14 +551,23 @@ class Mageaus_UrlManager_Model_Observer
 
             $storeId = Mage::app()->getStore()->getId();
 
+            // Load template file
+            $templateFile = Mage::getBaseDir('locale') . DS . 'en_US' . DS . 'template' . DS . 'email' . DS . 'mageaus_urlmanager' . DS . '404_report.html';
+
+            if (!file_exists($templateFile)) {
+                Mage::log('404 report email template not found: ' . $templateFile, Mage::LOG_ERROR, 'mageaus_urlmanager.log');
+                return;
+            }
+
+            $templateContent = file_get_contents($templateFile);
+
             $emailTemplate = Mage::getModel('core/email_template');
             $emailTemplate->setDesignConfig(['area' => 'frontend', 'store' => $storeId]);
 
-            // Load the registered template (config.xml -> global/template/email).
-            // The subject comes from the template's @subject directive and is
-            // processed with the vars passed to send(), so it is no longer
-            // hard-coded here and respects store-scoped/admin-edited overrides.
-            $emailTemplate->loadDefault('mageaus_urlmanager_404_report');
+            // Set template content and type
+            $emailTemplate->setTemplateSubject('404 Not Found Report - ' . $period);
+            $emailTemplate->setTemplateText($templateContent);
+            $emailTemplate->setTemplateType(Mage_Core_Model_Email_Template::TYPE_HTML);
 
             // Set sender from general identity
             $senderName = Mage::getStoreConfig('trans_email/ident_general/name', $storeId);
