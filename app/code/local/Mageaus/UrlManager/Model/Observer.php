@@ -9,6 +9,8 @@
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
  */
 
+declare(strict_types=1);
+
 /**
  * URL Manager Observer
  *
@@ -32,142 +34,6 @@ class Mageaus_UrlManager_Model_Observer
         $observer->getEvent()->getFront()->addRouter('mageaus_urlmanager', $router);
 
         Mage::log('URL Manager Observer: Router added successfully', Mage::LOG_INFO, 'mageaus_urlmanager.log');
-    }
-
-    /**
-     * Handle redirects before controller dispatch
-     */
-    public function handleRedirects(Varien_Event_Observer $observer): void
-    {
-        /** @var Mageaus_UrlManager_Helper_Data $helper */
-        $helper = Mage::helper('mageaus_urlmanager');
-
-        Mage::log('URL Manager Observer: handleRedirects() called', Mage::LOG_DEBUG, 'mageaus_urlmanager.log');
-
-        // Check if redirect management is enabled
-        if (!$helper->isEnabled()) {
-            Mage::log('URL Manager Observer: Module is disabled', Mage::LOG_DEBUG, 'mageaus_urlmanager.log');
-            return;
-        }
-
-        // Get current request
-        $request = $observer->getEvent()->getControllerAction()->getRequest();
-        $requestPath = trim((string) $request->getRequestUri(), '/');
-
-        // Build full URL for comparison (some redirects may use full URLs)
-        $baseUrl = rtrim(Mage::getBaseUrl(), '/');
-        $fullUrl = $baseUrl . '/' . $requestPath;
-
-        Mage::log('URL Manager Observer: Request URI: ' . $requestPath, Mage::LOG_INFO, 'mageaus_urlmanager.log');
-        Mage::log('URL Manager Observer: Full URL: ' . $fullUrl, Mage::LOG_DEBUG, 'mageaus_urlmanager.log');
-
-        // Strip query string if configured
-        if ($helper->shouldStripQueryString()) {
-            $requestPath = strtok($requestPath, '?');
-            $fullUrl = strtok($fullUrl, '?');
-        }
-
-        // Case sensitivity handling
-        if (!$helper->isCaseSensitive()) {
-            $requestPath = strtolower($requestPath);
-            $fullUrl = strtolower($fullUrl);
-        }
-
-        // Load all active redirects ordered by priority
-        /** @var Mageaus_UrlManager_Model_Resource_Redirect_Collection $redirects */
-        $redirects = Mage::getResourceModel('mageaus_urlmanager/redirect_collection')
-            ->addFieldToFilter('is_active', 1)
-            ->setOrder('priority', 'DESC');
-
-        foreach ($redirects as $redirect) {
-            /** @var Mageaus_UrlManager_Model_Redirect $redirect */
-            $sourceUrl = trim((string) $redirect->getSourceUrl(), '/');
-
-            // Host-agnostic candidate: when the stored source is a FULL URL
-            // (virtually all imported rows are anchored to the production
-            // host), also match its path component. Otherwise the whole
-            // table is dead on any other environment host (dev/staging) and
-            // untestable before cutover. Additive only - the original
-            // full-URL comparison still runs, so production behaviour is
-            // unchanged.
-            $candidates = [$sourceUrl];
-            if (str_starts_with($sourceUrl, 'http://') || str_starts_with($sourceUrl, 'https://')) {
-                $sourcePath = trim((string) (parse_url($sourceUrl, PHP_URL_PATH) ?: ''), '/');
-                if ($sourcePath !== '') {
-                    $candidates[] = $sourcePath;
-                }
-            }
-
-            // Case sensitivity handling
-            if (!$helper->isCaseSensitive()) {
-                $candidates = array_map('strtolower', $candidates);
-            }
-            $sourceUrl = $candidates[0];
-
-            // Check for match (try both request path and full URL)
-            $isMatch = false;
-
-            foreach ($candidates as $candidate) {
-                if ($redirect->getIsWildcard()) {
-                    // Wildcard matching
-                    $pattern = str_replace(
-                        $helper->getWildcardCharacter(),
-                        '.*',
-                        preg_quote($candidate, '/'),
-                    );
-                    $isMatch = preg_match('/^' . $pattern . '$/', $requestPath) ||
-                               preg_match('/^' . $pattern . '$/', $fullUrl);
-                } else {
-                    // Exact match (try both path and full URL)
-                    $isMatch = ($candidate === $requestPath) || ($candidate === $fullUrl);
-                }
-                if ($isMatch) {
-                    break;
-                }
-            }
-
-            if (Mage::getIsDeveloperMode()) {
-                Mage::log(sprintf(
-                    'URL Manager Observer: Checking redirect #%d: %s (wildcard: %s) against %s / %s = %s',
-                    $redirect->getId(),
-                    $sourceUrl,
-                    $redirect->getIsWildcard() ? 'yes' : 'no',
-                    $requestPath,
-                    $fullUrl,
-                    $isMatch ? 'MATCH' : 'no match',
-                ), Mage::LOG_DEBUG, 'mageaus_urlmanager.log');
-            }
-
-            if ($isMatch) {
-                // Update hit statistics
-                $redirect->setHitCount($redirect->getHitCount() + 1);
-                $redirect->setLastHitAt(Mage_Core_Model_Locale::nowUtc());
-                $redirect->save();
-
-                // Perform redirect
-                $destinationUrl = $redirect->getDestinationUrl();
-
-                // Handle relative URLs
-                if (!preg_match('/^https?:\/\//', (string) $destinationUrl)) {
-                    $destinationUrl = Mage::getBaseUrl() . ltrim((string) $destinationUrl, '/');
-                }
-
-                // Log redirect for debugging
-                Mage::log(sprintf(
-                    'URL Manager: Redirecting %s to %s (Status: %d, Priority: %d)',
-                    $requestPath,
-                    $destinationUrl,
-                    $redirect->getStatusCode(),
-                    $redirect->getPriority(),
-                ), Mage::LOG_INFO);
-
-                // Send redirect response
-                $response = Mage::app()->getResponse();
-                $response->setRedirect($destinationUrl, $redirect->getStatusCode());
-                $response->sendResponse();
-                exit;
-            }
-        }
     }
 
     /**

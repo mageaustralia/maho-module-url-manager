@@ -7,6 +7,8 @@
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
  */
 
+declare(strict_types=1);
+
 $installer = $this;
 $installer->startSetup();
 

@@ -9,6 +9,8 @@
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
  */
 
+declare(strict_types=1);
+
 /**
  * URL Manager Router
  *
@@ -52,8 +54,11 @@ class Mageaus_UrlManager_Controller_Router extends Mage_Core_Controller_Varien_R
 
         // Strip query string if configured
         if ($helper->shouldStripQueryString()) {
-            $requestPath = strtok($requestPath, '?');
-            $fullUrl = strtok($fullUrl, '?');
+            // strtok('' , '?') returns false - coerce back to string or
+            // strtolower() below throws a TypeError under strict_types
+            // (the homepage request has an empty path).
+            $requestPath = strtok($requestPath, '?') ?: '';
+            $fullUrl = strtok($fullUrl, '?') ?: '';
         }
 
         // Case sensitivity handling
