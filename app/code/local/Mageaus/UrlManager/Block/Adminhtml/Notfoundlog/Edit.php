@@ -46,4 +46,14 @@ class Mageaus_UrlManager_Block_Adminhtml_Notfoundlog_Edit extends Mage_Adminhtml
             return Mage::helper('mageaus_urlmanager')->__('New 404 Log Entry');
         }
     }
+
+    /**
+     * Base container falls back to the deprecated getSaveUrl() when this
+     * is absent (E_USER_DEPRECATED per admin edit-page render).
+     */
+    #[\Override]
+    public function getFormActionUrl(): string
+    {
+        return $this->getUrl('*/*/save');
+    }
 }

@@ -142,7 +142,7 @@ class Mageaus_UrlManager_Block_Suggestions extends Mage_Core_Block_Template
                 ->addAttributeToFilter('visibility', ['neq' => 1])
                 ->setPageSize($this->getMaxSuggestions());
 
-            Mage::getSingleton('catalog/product_visibility')->addVisibleInSearchFilterToCollection($collection);
+            $collection->setVisibility(Mage::getSingleton('catalog/product_visibility')->getVisibleInSearchIds());
             Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
 
             return $collection;
@@ -191,7 +191,7 @@ class Mageaus_UrlManager_Block_Suggestions extends Mage_Core_Block_Template
             );
         }
 
-        Mage::getSingleton('catalog/product_visibility')->addVisibleInSearchFilterToCollection($collection);
+        $collection->setVisibility(Mage::getSingleton('catalog/product_visibility')->getVisibleInSearchIds());
         Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
 
         return $collection;
@@ -209,7 +209,7 @@ class Mageaus_UrlManager_Block_Suggestions extends Mage_Core_Block_Template
             ->setPageSize($this->getMaxSuggestions())
             ->setOrder('created_at', 'DESC');
 
-        Mage::getSingleton('catalog/product_visibility')->addVisibleInSearchFilterToCollection($collection);
+        $collection->setVisibility(Mage::getSingleton('catalog/product_visibility')->getVisibleInSearchIds());
         Mage::getSingleton('cataloginventory/stock')->addInStockFilterToCollection($collection);
 
         return $collection;
