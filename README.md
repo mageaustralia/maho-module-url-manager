@@ -15,17 +15,41 @@ URL redirect management + 404 logging + scheduled email reports for Maho.
 
 ## Requirements
 
-- Maho 26.3+
+- Maho 26.5+ (tested on 26.7)
 - PHP 8.3+
 
 ## Installation
 
+The package is installed from GitHub (not on Packagist). Add the repository to your Maho project's `composer.json`, then require it:
+
 ```bash
+composer config repositories.maho-module-url-manager vcs https://github.com/mageaustralia/maho-module-url-manager
 composer require mageaustralia/maho-module-url-manager
-composer dump-autoload -o
 ```
 
+Then from your Maho root:
+
+```bash
+composer dump-autoload        # compiles the module's routes + observers
+./maho migrate                # creates/reconciles the two tables (declarative schema)
+./maho cache:flush
+```
+
+Configuration lives under **System > Configuration > URL Manager** (enable/disable, wildcard character, case sensitivity, query-string handling, 404 email reports). Redirects and the 404 log are managed under the **URL Manager** admin menu.
+
+### Manual install (no composer)
+
+Copy the `app/` tree into your Maho root, then run the same three commands above.
+
 ## Changelog
+
+### 1.2.0 (2026-07-06)
+
+- **Fix:** host-agnostic redirect matching — sources stored as full URLs (the common shape for imported redirect sets) now also match by their path component, so the same redirect table works on any environment host (dev/staging/production), not just the host the URLs were anchored to.
+- **Fix:** homepage `TypeError` under `strict_types` (`strtok('', '?')` returns `false` on an empty path).
+- Declarative `sql/schema.php` for both tables (legacy setup scripts retained for BC).
+- Modernisation: `declare(strict_types=1)` across the module, `Maho\Data\Form` in admin forms, license headers throughout, 136 lines of dead duplicate matcher code removed, per-row debug logging gated behind developer mode.
+- CI: lint workflow from [maho-module-generator](https://github.com/mageaustralia/maho-module-generator) added alongside maho-ci checks.
 
 ### 1.1.0 (2026-04-23)
 
