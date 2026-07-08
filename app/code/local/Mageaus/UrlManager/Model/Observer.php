@@ -71,7 +71,9 @@ class Mageaus_UrlManager_Model_Observer
         $requestPath = trim((string) $request->getRequestUri(), '/');
 
         // Check if we should log bot traffic
-        $userAgent = $request->getHeader('User-Agent');
+        // getHeader() returns false when the header is absent - the strict
+        // isBot(string) signature then fatals, turning every 404 into a 500.
+        $userAgent = (string) ($request->getHeader('User-Agent') ?: '');
         if (!$helper->shouldLogBots() && $this->isBot($userAgent)) {
             return;
         }
@@ -262,8 +264,8 @@ class Mageaus_UrlManager_Model_Observer
                 ->getColumnValues('notfound_log_id');
 
             if (!empty($idsToDelete)) {
-                Mage::getResourceModel('mageaus_urlmanager/notfoundlog')
-                    ->getConnection()
+                // Maho resource models expose no public getConnection()
+                Mage::getSingleton('core/resource')->getConnection('core_write')
                     ->delete(
                         Mage::getResourceModel('mageaus_urlmanager/notfoundlog')->getMainTable(),
                         ['notfound_log_id IN (?)' => $idsToDelete],
