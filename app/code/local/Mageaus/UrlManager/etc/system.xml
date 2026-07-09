@@ -74,6 +74,15 @@
                             <show_in_store>1</show_in_store>
                             <comment>Remove query string before matching URLs</comment>
                         </strip_query_string>
+                        <internal_hosts translate="label comment">
+                            <label>Internal Hosts</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment><![CDATA[Comma-separated hostnames that belong to this shop, e.g. <em>www.example.com</em>. A redirect whose destination points at one of these hosts is re-hosted onto the store serving the request, so a redirect list exported from production still works on a staging copy instead of bouncing visitors back to production. Destinations on any other host are left untouched.]]></comment>
+                        </internal_hosts>
                     </fields>
                 </redirects>
 

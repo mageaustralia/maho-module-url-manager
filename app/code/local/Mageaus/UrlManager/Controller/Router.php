@@ -105,11 +105,7 @@ class Mageaus_UrlManager_Controller_Router extends Mage_Core_Controller_Varien_R
             foreach ($candidates as $compareSourceUrl) {
                 if ($redirect->getIsWildcard()) {
                     // Wildcard matching
-                    $pattern = str_replace(
-                        $helper->getWildcardCharacter(),
-                        '.*',
-                        preg_quote($compareSourceUrl, '/'),
-                    );
+                    $pattern = $helper->buildWildcardPattern($compareSourceUrl);
                     $isMatch = preg_match('/^' . $pattern . '$/', $compareRequestPath) ||
                                preg_match('/^' . $pattern . '$/', $compareFullUrl);
                 } else {
@@ -136,13 +132,9 @@ class Mageaus_UrlManager_Controller_Router extends Mage_Core_Controller_Varien_R
                 $redirect->setLastHitAt(Mage_Core_Model_Locale::nowUtc());
                 $redirect->save();
 
-                // Perform redirect
-                $destinationUrl = $redirect->getDestinationUrl();
-
-                // Handle relative URLs
-                if (!preg_match('/^https?:\/\//', (string) $destinationUrl)) {
-                    $destinationUrl = Mage::getBaseUrl() . ltrim((string) $destinationUrl, '/');
-                }
+                // Perform redirect - relative destinations and internal hosts both
+                // resolve onto whichever store is serving this request
+                $destinationUrl = $helper->resolveDestinationUrl((string) $redirect->getDestinationUrl());
 
                 // Send redirect response
                 $response = Mage::app()->getResponse();

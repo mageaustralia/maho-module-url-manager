@@ -37,6 +37,149 @@ class Mageaus_UrlManager_Model_Observer
     }
 
     /**
+     * Auto-redirect disabled products when configured
+     *
+     * Fires during catalog_controller_product_init_before so we can redirect
+     * before the standard no-route handling kicks in.
+     */
+    public function handleDisabledProductRedirect(Varien_Event_Observer $observer): void
+    {
+        /** @var Mageaus_UrlManager_Helper_Data $helper */
+        $helper = Mage::helper('mageaus_urlmanager');
+
+        if (!$helper->isEnabled() || !$helper->shouldRedirectDisabledProducts()) {
+            return;
+        }
+
+        /** @var Mage_Catalog_Model_Product $product */
+        $product = $observer->getEvent()->getProduct();
+        if (!$product || !$product->getId()) {
+            return;
+        }
+
+        if ((int) $product->getStatus() !== Mage_Catalog_Model_Product_Status::STATUS_DISABLED) {
+            return;
+        }
+
+        /** @var Mage_Core_Controller_Front_Action|null $controller */
+        $controller = $observer->getEvent()->getControllerAction();
+        if (!$controller) {
+            return;
+        }
+
+        // Only intercept the main product view action
+        $request = $controller->getRequest();
+        if ($request->getModuleName() !== 'catalog'
+            || $request->getControllerName() !== 'product'
+            || $request->getActionName() !== 'view'
+        ) {
+            return;
+        }
+
+        $url = $this->findManualRedirectUrl($request);
+
+        if (empty($url)) {
+            $redirectType = $helper->getDisabledProductsRedirectType();
+
+            switch ($redirectType) {
+                case 'redirect_category':
+                    $categoryIds = $product->getCategoryIds();
+                    if (!empty($categoryIds)) {
+                        $category = Mage::getModel('catalog/category')->load((int) $categoryIds[0]);
+                        if ($category->getId()) {
+                            $url = $category->getUrl();
+                        }
+                    }
+                    if (empty($url)) {
+                        $url = Mage::getBaseUrl();
+                    }
+                    break;
+
+                case 'redirect_home':
+                    $url = Mage::getBaseUrl();
+                    break;
+
+                case 'redirect_search':
+                    $url = Mage::getUrl('catalogsearch/result', ['_query' => ['q' => $product->getName()]]);
+                    break;
+
+                default:
+                    return;
+            }
+        }
+
+        if (!empty($url)) {
+            Mage::log(
+                sprintf('URL Manager: redirecting disabled product %s to %s', $product->getSku(), $url),
+                Mage::LOG_INFO,
+                'mageaus_urlmanager.log',
+            );
+            $controller->getResponse()->setRedirect($url, 301)->sendResponse();
+            exit;
+        }
+    }
+
+    /**
+     * Look for an active manual URL Manager redirect that matches the current request.
+     * Returns the resolved destination URL, or null if no manual redirect matches.
+     */
+    protected function findManualRedirectUrl(Mage_Core_Controller_Request_Http $request): ?string
+    {
+        /** @var Mageaus_UrlManager_Helper_Data $helper */
+        $helper = Mage::helper('mageaus_urlmanager');
+
+        // Use the original request path, because by the time this event fires
+        // Maho has already rewritten the route path to catalog/product/view/id/...
+        $requestPath = trim($request->getOriginalPathInfo(), '/');
+        if ($requestPath === '') {
+            return null;
+        }
+
+        $compareRequestPath = $helper->isCaseSensitive() ? $requestPath : strtolower($requestPath);
+
+        /** @var Mageaus_UrlManager_Model_Resource_Redirect_Collection $redirects */
+        $redirects = Mage::getResourceModel('mageaus_urlmanager/redirect_collection')
+            ->addFieldToFilter('is_active', 1)
+            ->setOrder('priority', 'DESC');
+
+        foreach ($redirects as $redirect) {
+            /** @var Mageaus_UrlManager_Model_Redirect $redirect */
+            $sourceUrl = trim((string) $redirect->getSourceUrl(), '/');
+            if ($sourceUrl === '') {
+                continue;
+            }
+
+            // Match both full URLs and their path component so dev/staging work
+            $candidates = [$sourceUrl];
+            if (str_starts_with($sourceUrl, 'http://') || str_starts_with($sourceUrl, 'https://')) {
+                $sourcePath = trim((string) (parse_url($sourceUrl, PHP_URL_PATH) ?: ''), '/');
+                if ($sourcePath !== '') {
+                    $candidates[] = $sourcePath;
+                }
+            }
+
+            if (!$helper->isCaseSensitive()) {
+                $candidates = array_map('strtolower', $candidates);
+            }
+
+            foreach ($candidates as $candidate) {
+                if ($redirect->getIsWildcard()) {
+                    $pattern = $helper->buildWildcardPattern($candidate);
+                    $isMatch = (bool) preg_match('/^' . $pattern . '$/', $compareRequestPath);
+                } else {
+                    $isMatch = ($candidate === $compareRequestPath);
+                }
+
+                if ($isMatch) {
+                    return $helper->resolveDestinationUrl((string) $redirect->getDestinationUrl());
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Log 404 errors and attempt fuzzy matching
      */
     public function logNotFound(Varien_Event_Observer $observer): void

@@ -26,6 +26,7 @@ class Mageaus_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     public const XML_PATH_WILDCARD_CHARACTER = 'mageaus_urlmanager/redirects/wildcard_character';
     public const XML_PATH_CASE_SENSITIVE = 'mageaus_urlmanager/redirects/case_sensitive';
     public const XML_PATH_STRIP_QUERY_STRING = 'mageaus_urlmanager/redirects/strip_query_string';
+    public const XML_PATH_INTERNAL_HOSTS = 'mageaus_urlmanager/redirects/internal_hosts';
 
     public const XML_PATH_404_LOGGING_ENABLED = 'mageaus_urlmanager/logging/enabled';
     public const XML_PATH_404_LOG_BOTS = 'mageaus_urlmanager/logging/log_bots';
@@ -62,6 +63,14 @@ class Mageaus_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     public function shouldRedirectDisabledProducts(?int $storeId = null): bool
     {
         return Mage::getStoreConfigFlag(self::XML_PATH_AUTO_DISABLED_PRODUCTS, $storeId);
+    }
+
+    /**
+     * Get the configured disabled-product redirect type
+     */
+    public function getDisabledProductsRedirectType(?int $storeId = null): string
+    {
+        return (string) Mage::getStoreConfig(self::XML_PATH_AUTO_DISABLED_PRODUCTS, $storeId);
     }
 
     /**
@@ -102,6 +111,73 @@ class Mageaus_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     public function shouldStripQueryString(?int $storeId = null): bool
     {
         return Mage::getStoreConfigFlag(self::XML_PATH_STRIP_QUERY_STRING, $storeId);
+    }
+
+    /**
+     * Hosts that belong to this shop, regardless of which environment it runs in.
+     *
+     * @return string[] lowercase hostnames
+     */
+    public function getInternalHosts(?int $storeId = null): array
+    {
+        $configured = (string) Mage::getStoreConfig(self::XML_PATH_INTERNAL_HOSTS, $storeId);
+
+        $hosts = array_map(
+            static fn($host): string => strtolower(trim((string) $host)),
+            explode(',', $configured),
+        );
+
+        return array_values(array_filter($hosts, static fn(string $host): bool => $host !== ''));
+    }
+
+    /**
+     * Turn a stored destination into a URL on the current store.
+     *
+     * Redirect lists are usually exported from production, so their destinations are
+     * absolute production URLs. Replaying that list on a staging or development copy
+     * would bounce visitors onto production, which makes the redirects untestable.
+     * Configure those production hostnames as internal hosts and the path is re-hosted
+     * onto whichever store is currently serving the request. Any other host is left
+     * alone, so genuine off-site redirects still work.
+     */
+    public function resolveDestinationUrl(string $destinationUrl, ?int $storeId = null): string
+    {
+        $destinationUrl = trim($destinationUrl);
+
+        if (!preg_match('#^https?://#i', $destinationUrl)) {
+            return Mage::getBaseUrl() . ltrim($destinationUrl, '/');
+        }
+
+        $parsed = parse_url($destinationUrl);
+        $host = isset($parsed['host']) ? strtolower($parsed['host']) : '';
+
+        if ($host === '' || !in_array($host, $this->getInternalHosts($storeId), true)) {
+            return $destinationUrl;
+        }
+
+        $path = $parsed['path'] ?? '/';
+        $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+        $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+
+        return Mage::getBaseUrl() . ltrim($path, '/') . $query . $fragment;
+    }
+
+    /**
+     * Build a regex that matches a source URL containing wildcard characters.
+     *
+     * The wildcard has to be swapped in after quoting: preg_quote() escapes the
+     * wildcard itself, so replacing it beforehand leaves an escaped literal behind
+     * and the pattern silently stops matching anything.
+     */
+    public function buildWildcardPattern(string $sourceUrl, ?int $storeId = null): string
+    {
+        $wildcardChar = $this->getWildcardCharacter($storeId);
+
+        return str_replace(
+            preg_quote($wildcardChar, '/'),
+            '.*',
+            preg_quote($sourceUrl, '/'),
+        );
     }
 
     /**

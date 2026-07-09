@@ -90,6 +90,16 @@
                 </observers>
             </controller_front_init_routers>
 
+            <!-- Disabled product auto-redirect -->
+            <catalog_controller_product_init_before>
+                <observers>
+                    <mageaus_urlmanager_disabled_product_redirect>
+                        <class>mageaus_urlmanager/observer</class>
+                        <method>handleDisabledProductRedirect</method>
+                    </mageaus_urlmanager_disabled_product_redirect>
+                </observers>
+            </catalog_controller_product_init_before>
+
             <!-- 404 Logger -->
             <controller_front_send_response_before>
                 <observers>
