@@ -19,6 +19,7 @@ declare(strict_types=1);
  */
 class MageAustralia_UrlManager_Model_Resource_Notfoundlog extends Mage_Core_Model_Resource_Db_Abstract
 {
+    #[\Override]
     protected function _construct(): void
     {
         $this->_init('mageaustralia_urlmanager/notfoundlog', 'notfound_log_id');
