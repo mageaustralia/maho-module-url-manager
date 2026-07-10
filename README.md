@@ -65,7 +65,7 @@ Also update any CMS pages/blocks or custom layout XML that reference `mageaus_ur
 
 ### 1.2.0 (2026-07-06)
 
-- **Fix:** host-agnostic redirect matching — sources stored as full URLs (the common shape for imported redirect sets) now also match by their path component, so the same redirect table works on any environment host (dev/staging/production), not just the host the URLs were anchored to.
+- **Fix:** host-agnostic redirect matching - sources stored as full URLs (the common shape for imported redirect sets) now also match by their path component, so the same redirect table works on any environment host (dev/staging/production), not just the host the URLs were anchored to.
 - **Fix:** homepage `TypeError` under `strict_types` (`strtok('', '?')` returns `false` on an empty path).
 - Declarative `sql/schema.php` for both tables (legacy setup scripts retained for BC).
 - Modernisation: `declare(strict_types=1)` across the module, `Maho\Data\Form` in admin forms, license headers throughout, 136 lines of dead duplicate matcher code removed, per-row debug logging gated behind developer mode.
@@ -74,7 +74,7 @@ Also update any CMS pages/blocks or custom layout XML that reference `mageaus_ur
 ### 1.1.0 (2026-04-23)
 
 - **Fix:** 404 reports now include only URLs hit since the previous report, instead of re-listing the lifetime top 404s every run. Adds `last_reported_at` column + index to `mageaustralia_urlmanager_notfoundlog`.
-- **Fix:** Skip sending the email entirely when there are no new 404s — prevents "empty" reports and acts as idempotent defence-in-depth when the cron scheduler fires twice.
+- **Fix:** Skip sending the email entirely when there are no new 404s - prevents "empty" reports and acts as idempotent defence-in-depth when the cron scheduler fires twice.
 - Stamp `last_reported_at` only after the email sends successfully, so a transient send failure keeps rows eligible for the next run.
 
 ### 1.0.0
