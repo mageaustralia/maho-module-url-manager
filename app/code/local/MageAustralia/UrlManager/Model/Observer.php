@@ -3,7 +3,7 @@
 /**
  * Maho
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com)
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
@@ -16,7 +16,7 @@ declare(strict_types=1);
  *
  * Handles redirect processing and 404 logging
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  */
 class MageAustralia_UrlManager_Model_Observer
@@ -212,6 +212,10 @@ class MageAustralia_UrlManager_Model_Observer
 
         $request = Mage::app()->getRequest();
         $requestPath = trim((string) $request->getRequestUri(), '/');
+
+        if ($helper->shouldIgnoreUrl($requestPath)) {
+            return;
+        }
 
         // Check if we should log bot traffic
         // getHeader() returns false when the header is absent - the strict

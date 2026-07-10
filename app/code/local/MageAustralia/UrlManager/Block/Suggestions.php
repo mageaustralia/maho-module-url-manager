@@ -3,9 +3,9 @@
 /**
  * Maho
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
- * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com) & Mageaustralia (https://mageaustralia.com.au)
+ * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com) & MageAustralia (https://mageaustralia.com.au)
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
  */
 
@@ -14,7 +14,7 @@ declare(strict_types=1);
 /**
  * Product Suggestions Block for 404 Pages
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  */
 class MageAustralia_UrlManager_Block_Suggestions extends Mage_Core_Block_Template

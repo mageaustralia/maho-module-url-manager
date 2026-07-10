@@ -3,9 +3,9 @@
 /**
  * Maho
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
- * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com) & Mageaustralia (https://mageaustralia.com.au)
+ * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com) & MageAustralia (https://mageaustralia.com.au)
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
  */
 
@@ -16,7 +16,7 @@ declare(strict_types=1);
  *
  * Provides configuration access methods
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  */
 class MageAustralia_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
@@ -31,6 +31,7 @@ class MageAustralia_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     public const XML_PATH_404_LOGGING_ENABLED = 'mageaustralia_urlmanager/logging/enabled';
     public const XML_PATH_404_LOG_BOTS = 'mageaustralia_urlmanager/logging/log_bots';
     public const XML_PATH_404_MAX_LOG_ENTRIES = 'mageaustralia_urlmanager/logging/max_log_entries';
+    public const XML_PATH_404_IGNORE_PATTERNS = 'mageaustralia_urlmanager/logging/ignore_patterns';
 
     public const XML_PATH_SUGGESTIONS_ENABLED = 'mageaustralia_urlmanager/suggestions/enabled';
     public const XML_PATH_SUGGESTIONS_MAX = 'mageaustralia_urlmanager/suggestions/max_suggestions';
@@ -202,6 +203,39 @@ class MageAustralia_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     public function getMaxLogEntries(?int $storeId = null): int
     {
         return (int) Mage::getStoreConfig(self::XML_PATH_404_MAX_LOG_ENTRIES, $storeId);
+    }
+
+    /**
+     * URL substrings excluded from 404 logging, one per line.
+     *
+     * @return string[]
+     */
+    public function getIgnorePatterns(?int $storeId = null): array
+    {
+        $configured = (string) Mage::getStoreConfig(self::XML_PATH_404_IGNORE_PATTERNS, $storeId);
+
+        if ($configured === '') {
+            return [];
+        }
+
+        $patterns = preg_split('/[\r\n]+/', $configured, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        return array_values(array_filter(array_map('trim', $patterns), static fn(string $p): bool => $p !== ''));
+    }
+
+    /**
+     * Check whether a request path matches any configured ignore pattern
+     * (case-insensitive substring match).
+     */
+    public function shouldIgnoreUrl(string $url, ?int $storeId = null): bool
+    {
+        foreach ($this->getIgnorePatterns($storeId) as $pattern) {
+            if (stripos($url, $pattern) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

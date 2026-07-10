@@ -3,7 +3,7 @@
 /**
  * Maho
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com)
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
@@ -125,6 +125,16 @@
                             <show_in_store>1</show_in_store>
                             <comment>Maximum number of 404 log entries to keep (0 = unlimited)</comment>
                         </max_log_entries>
+                        <ignore_patterns translate="label comment">
+                            <label>Ignore Patterns</label>
+                            <frontend_type>textarea</frontend_type>
+                            <backend_model>mageaustralia_urlmanager/adminhtml_system_config_backend_ignorepatterns</backend_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment><![CDATA[URL patterns to exclude from 404 logging (one per line or comma-separated).<br/>Examples: tel:, mailto:, .php, /media/, wp-. Any URL containing a pattern is not logged.]]></comment>
+                        </ignore_patterns>
                     </fields>
                 </logging>
 

@@ -3,7 +3,7 @@
 /**
  * Maho
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com)
  * @license    https://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
@@ -14,7 +14,7 @@ declare(strict_types=1);
 /**
  * Frontend Index Controller
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  */
 class MageAustralia_UrlManager_IndexController extends Mage_Core_Controller_Front_Action

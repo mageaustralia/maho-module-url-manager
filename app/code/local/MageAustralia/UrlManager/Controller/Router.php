@@ -3,7 +3,7 @@
 /**
  * Maho
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  * @copyright  Copyright (c) 2025 Maho (https://mahocommerce.com)
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License v. 3.0 (OSL-3.0)
@@ -16,7 +16,7 @@ declare(strict_types=1);
  *
  * Intercepts requests and handles redirects before they reach regular routing
  *
- * @category   Mageaus
+ * @category   MageAustralia
  * @package    MageAustralia_UrlManager
  */
 class MageAustralia_UrlManager_Controller_Router extends Mage_Core_Controller_Varien_Router_Abstract
