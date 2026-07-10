@@ -17,18 +17,18 @@
     },
     "autoload": {
         "psr-0": {
-            "Mageaus_UrlManager_": "app/code/local/"
+            "MageAustralia_UrlManager_": "app/code/local/"
         }
     },
     "extra": {
         "map": [
-            ["app/code/local/Mageaus/UrlManager", "app/code/local/Mageaus/UrlManager"],
-            ["app/design/adminhtml/default/default/layout/mageaus/urlmanager.xml", "app/design/adminhtml/default/default/layout/mageaus/urlmanager.xml"],
-            ["app/design/frontend/base/default/layout/mageaus/urlmanager.xml", "app/design/frontend/base/default/layout/mageaus/urlmanager.xml"],
-            ["app/design/frontend/base/default/template/mageaus/urlmanager", "app/design/frontend/base/default/template/mageaus/urlmanager"],
-            ["app/design/frontend/base/default/template/email/mageaus_urlmanager", "app/design/frontend/base/default/template/email/mageaus_urlmanager"],
-            ["app/etc/modules/Mageaus_UrlManager.xml", "app/etc/modules/Mageaus_UrlManager.xml"],
-            ["app/locale/en_US/template/email/mageaus_urlmanager", "app/locale/en_US/template/email/mageaus_urlmanager"]
+            ["app/code/local/MageAustralia/UrlManager", "app/code/local/MageAustralia/UrlManager"],
+            ["app/design/adminhtml/default/default/layout/mageaustralia/urlmanager.xml", "app/design/adminhtml/default/default/layout/mageaustralia/urlmanager.xml"],
+            ["app/design/frontend/base/default/layout/mageaustralia/urlmanager.xml", "app/design/frontend/base/default/layout/mageaustralia/urlmanager.xml"],
+            ["app/design/frontend/base/default/template/mageaustralia/urlmanager", "app/design/frontend/base/default/template/mageaustralia/urlmanager"],
+            ["app/design/frontend/base/default/template/email/mageaustralia_urlmanager", "app/design/frontend/base/default/template/email/mageaustralia_urlmanager"],
+            ["app/etc/modules/MageAustralia_UrlManager.xml", "app/etc/modules/MageAustralia_UrlManager.xml"],
+            ["app/locale/en_US/template/email/mageaustralia_urlmanager", "app/locale/en_US/template/email/mageaustralia_urlmanager"]
         ]
     }
 }

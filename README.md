@@ -1,4 +1,4 @@
-# Mageaus_UrlManager
+# MageAustralia_UrlManager
 
 [![CI](https://github.com/mageaustralia/maho-module-url-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/mageaustralia/maho-module-url-manager/actions/workflows/ci.yml)
 [![License: OSL-3.0](https://img.shields.io/badge/license-OSL--3.0-blue.svg)](LICENSE)
@@ -53,7 +53,7 @@ Copy the `app/` tree into your Maho root, then run the same three commands above
 
 ### 1.1.0 (2026-04-23)
 
-- **Fix:** 404 reports now include only URLs hit since the previous report, instead of re-listing the lifetime top 404s every run. Adds `last_reported_at` column + index to `mageaus_urlmanager_notfoundlog`.
+- **Fix:** 404 reports now include only URLs hit since the previous report, instead of re-listing the lifetime top 404s every run. Adds `last_reported_at` column + index to `mageaustralia_urlmanager_notfoundlog`.
 - **Fix:** Skip sending the email entirely when there are no new 404s — prevents "empty" reports and acts as idempotent defence-in-depth when the cron scheduler fires twice.
 - Stamp `last_reported_at` only after the email sends successfully, so a transient send failure keeps rows eligible for the next run.
 

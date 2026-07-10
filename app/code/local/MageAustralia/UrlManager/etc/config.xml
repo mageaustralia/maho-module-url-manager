@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <MageAustralia_UrlManager>
+            <version>1.1.0</version>
+        </MageAustralia_UrlManager>
+    </modules>
+
+    <global>
+        <models>
+            <mageaustralia_urlmanager>
+                <class>MageAustralia_UrlManager_Model</class>
+                <resourceModel>mageaustralia_urlmanager_resource</resourceModel>
+            </mageaustralia_urlmanager>
+            <mageaustralia_urlmanager_resource>
+                <class>MageAustralia_UrlManager_Model_Resource</class>
+                <entities>
+                    <redirect>
+                        <table>mageaustralia_urlmanager_redirect</table>
+                    </redirect>
+                    <notfoundlog>
+                        <table>mageaustralia_urlmanager_notfoundlog</table>
+                    </notfoundlog>
+                </entities>
+            </mageaustralia_urlmanager_resource>
+        </models>
+
+        <resources>
+            <mageaustralia_urlmanager_setup>
+                <setup>
+                    <module>MageAustralia_UrlManager</module>
+                </setup>
+            </mageaustralia_urlmanager_setup>
+        </resources>
+
+        <blocks>
+            <mageaustralia_urlmanager>
+                <class>MageAustralia_UrlManager_Block</class>
+            </mageaustralia_urlmanager>
+        </blocks>
+
+        <helpers>
+            <mageaustralia_urlmanager>
+                <class>MageAustralia_UrlManager_Helper</class>
+            </mageaustralia_urlmanager>
+        </helpers>
+
+        <template>
+            <email>
+                <mageaustralia_urlmanager_404_report translate="label" module="mageaustralia_urlmanager">
+                    <label>URL Manager - 404 Not Found Report</label>
+                    <file>mageaustralia_urlmanager/404_report.html</file>
+                    <type>html</type>
+                </mageaustralia_urlmanager_404_report>
+            </email>
+        </template>
+
+        <!-- Events -->
+        <events>
+            <!-- URL Rewrite Events -->
+            <mageaustralia_urlmanager_redirect_save_after>
+                <observers>
+                    <mageaustralia_urlmanager_url_rewrite>
+                        <class>mageaustralia_urlmanager/observer_urlRewrite</class>
+                        <method>generateRedirectUrlRewrite</method>
+                    </mageaustralia_urlmanager_url_rewrite>
+                    <mageaustralia_urlmanager_clear_404_logs>
+                        <class>mageaustralia_urlmanager/observer</class>
+                        <method>clearMatchingNotFoundLogs</method>
+                    </mageaustralia_urlmanager_clear_404_logs>
+                </observers>
+            </mageaustralia_urlmanager_redirect_save_after>
+            <mageaustralia_urlmanager_redirect_delete_after>
+                <observers>
+                    <mageaustralia_urlmanager_url_rewrite_delete>
+                        <class>mageaustralia_urlmanager/observer_urlRewrite</class>
+                        <method>deleteRedirectUrlRewrite</method>
+                    </mageaustralia_urlmanager_url_rewrite_delete>
+                </observers>
+            </mageaustralia_urlmanager_redirect_delete_after>
+
+            <!-- Router Registration -->
+            <controller_front_init_routers>
+                <observers>
+                    <mageaustralia_urlmanager_init_routers>
+                        <type>singleton</type>
+                        <class>MageAustralia_UrlManager_Model_Observer</class>
+                        <method>initRouters</method>
+                    </mageaustralia_urlmanager_init_routers>
+                </observers>
+            </controller_front_init_routers>
+
+            <!-- Disabled product auto-redirect -->
+            <catalog_controller_product_init_before>
+                <observers>
+                    <mageaustralia_urlmanager_disabled_product_redirect>
+                        <class>mageaustralia_urlmanager/observer</class>
+                        <method>handleDisabledProductRedirect</method>
+                    </mageaustralia_urlmanager_disabled_product_redirect>
+                </observers>
+            </catalog_controller_product_init_before>
+
+            <!-- 404 Logger -->
+            <controller_front_send_response_before>
+                <observers>
+                    <mageaustralia_urlmanager_log_not_found>
+                        <class>mageaustralia_urlmanager/observer</class>
+                        <method>logNotFound</method>
+                    </mageaustralia_urlmanager_log_not_found>
+                </observers>
+            </controller_front_send_response_before>
+        </events>
+    </global>
+
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <mageaustralia_urlmanager before="Mage_Adminhtml">MageAustralia_UrlManager_Adminhtml</mageaustralia_urlmanager>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+
+    <frontend>
+        <layout>
+            <updates>
+                <mageaustralia_urlmanager>
+                    <file>mageaustralia/urlmanager.xml</file>
+                </mageaustralia_urlmanager>
+            </updates>
+        </layout>
+    </frontend>
+
+    <adminhtml>
+        <layout>
+            <updates>
+                <mageaustralia_urlmanager>
+                    <file>mageaustralia/urlmanager.xml</file>
+                </mageaustralia_urlmanager>
+            </updates>
+        </layout>
+
+    </adminhtml>
+
+    <crontab>
+        <jobs>
+            <mageaustralia_urlmanager_send_daily_report>
+                <schedule><cron_expr>0 8 * * *</cron_expr></schedule>
+                <run><model>mageaustralia_urlmanager/observer::sendDailyReport</model></run>
+            </mageaustralia_urlmanager_send_daily_report>
+            <mageaustralia_urlmanager_send_weekly_report>
+                <schedule><cron_expr>0 8 * * 1</cron_expr></schedule>
+                <run><model>mageaustralia_urlmanager/observer::sendWeeklyReport</model></run>
+            </mageaustralia_urlmanager_send_weekly_report>
+        </jobs>
+    </crontab>
+
+</config>
