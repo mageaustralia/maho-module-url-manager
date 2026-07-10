@@ -22,7 +22,7 @@ class MageAustralia_UrlManager_Model_Observer_UrlRewrite
     /**
      * Generate URL rewrites after save
      */
-    public function generateRedirectUrlRewrite(Varien_Event_Observer $observer): void
+    public function generateRedirectUrlRewrite(\Maho\Event\Observer $observer): void
     {
         /** @var MageAustralia_UrlManager_Model_Redirect $redirect */
         $redirect = $observer->getEvent()->getRedirect();
@@ -110,7 +110,7 @@ class MageAustralia_UrlManager_Model_Observer_UrlRewrite
     /**
      * Delete URL rewrites after delete
      */
-    public function deleteRedirectUrlRewrite(Varien_Event_Observer $observer): void
+    public function deleteRedirectUrlRewrite(\Maho\Event\Observer $observer): void
     {
         /** @var MageAustralia_UrlManager_Model_Redirect $redirect */
         $redirect = $observer->getEvent()->getRedirect();

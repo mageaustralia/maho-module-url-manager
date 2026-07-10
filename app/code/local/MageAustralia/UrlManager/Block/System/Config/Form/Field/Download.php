@@ -25,7 +25,7 @@ class MageAustralia_UrlManager_Block_System_Config_Form_Field_Download extends M
      * Render download link HTML
      */
     #[\Override]
-    protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element): string
+    protected function _getElementHtml(\Maho\Data\Form\Element\AbstractElement $element): string
     {
         $url = Mage::helper('adminhtml')->getUrl('adminhtml/redirect/exportCsv');
 

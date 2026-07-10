@@ -26,7 +26,7 @@ class MageAustralia_UrlManager_Model_Observer
      *
      * This is called via controller_front_init_routers event
      */
-    public function initRouters(Varien_Event_Observer $observer): void
+    public function initRouters(\Maho\Event\Observer $observer): void
     {
         Mage::log('URL Manager Observer: initRouters() called', Mage::LOG_INFO, 'mageaustralia_urlmanager.log');
 
@@ -42,7 +42,7 @@ class MageAustralia_UrlManager_Model_Observer
      * Fires during catalog_controller_product_init_before so we can redirect
      * before the standard no-route handling kicks in.
      */
-    public function handleDisabledProductRedirect(Varien_Event_Observer $observer): void
+    public function handleDisabledProductRedirect(\Maho\Event\Observer $observer): void
     {
         /** @var MageAustralia_UrlManager_Helper_Data $helper */
         $helper = Mage::helper('mageaustralia_urlmanager');
@@ -182,7 +182,7 @@ class MageAustralia_UrlManager_Model_Observer
     /**
      * Log 404 errors and attempt fuzzy matching
      */
-    public function logNotFound(Varien_Event_Observer $observer): void
+    public function logNotFound(\Maho\Event\Observer $observer): void
     {
         /** @var MageAustralia_UrlManager_Helper_Data $helper */
         $helper = Mage::helper('mageaustralia_urlmanager');
@@ -420,7 +420,7 @@ class MageAustralia_UrlManager_Model_Observer
     /**
      * Clear 404 logs that match the newly created redirect
      */
-    public function clearMatchingNotFoundLogs(Varien_Event_Observer $observer): void
+    public function clearMatchingNotFoundLogs(\Maho\Event\Observer $observer): void
     {
         /** @var MageAustralia_UrlManager_Model_Redirect $redirect */
         $redirect = $observer->getEvent()->getRedirect();
