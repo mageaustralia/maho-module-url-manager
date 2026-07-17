@@ -561,9 +561,6 @@ class MageAustralia_UrlManager_Model_Observer
 
         // Send email
         try {
-            $translate = Mage::getSingleton('core/translate');
-            $translate->setTranslateInline(false);
-
             $storeId = Mage::app()->getStore()->getId();
 
             // Load template file
@@ -624,8 +621,10 @@ class MageAustralia_UrlManager_Model_Observer
                 );
             }
 
-            $translate->setTranslateInline(true);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
+            // Throwable, not Exception: a removed-API Error thrown here killed the
+            // whole `cron:run default` process nightly, taking every job scheduled
+            // behind this one down with it. The report is not worth the cron group.
             Mage::logException($e);
         }
     }
