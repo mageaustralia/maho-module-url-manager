@@ -40,7 +40,8 @@ class MageAustralia_UrlManager_Block_Adminhtml_Notfoundlog_Edit extends Mage_Adm
     #[\Override]
     public function getHeaderText()
     {
-        if (Mage::registry('current_notfoundlog')->getId()) {
+        $model = Mage::registry('current_notfoundlog');
+        if ($model && $model->getId()) {
             return Mage::helper('mageaustralia_urlmanager')->__('Edit 404 Log Entry');
         } else {
             return Mage::helper('mageaustralia_urlmanager')->__('New 404 Log Entry');

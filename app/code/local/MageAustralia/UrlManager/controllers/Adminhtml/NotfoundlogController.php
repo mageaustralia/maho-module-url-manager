@@ -92,7 +92,14 @@ class MageAustralia_UrlManager_Adminhtml_NotfoundlogController extends Mage_Admi
             $model->setData($data);
         }
 
-        Mage::register('current_notfound_log', $model);
+        /*
+         * Registry key must match what the blocks read ('current_notfoundlog').
+         * It was registered here as 'current_notfound_log' — with the extra
+         * underscore — so both Edit and Edit/Form read null and the page died
+         * on getId() before rendering anything. Opening any 404-log entry was
+         * therefore a hard error.
+         */
+        Mage::register('current_notfoundlog', $model);
 
         $this->_initAction();
         $this->renderLayout();
