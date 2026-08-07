@@ -213,6 +213,11 @@ class MageAustralia_UrlManager_Model_Observer
         $request = Mage::app()->getRequest();
         $requestPath = trim((string) $request->getRequestUri(), '/');
 
+        // Drop ad click IDs (fbclid, gclid, utm_*, ...) before the lookup below,
+        // so repeat hits on the same broken path collapse into one row with an
+        // accurate hit_count instead of one row per unique tracking value.
+        $requestPath = $helper->stripTrackingParams($requestPath);
+
         if ($helper->shouldIgnoreUrl($requestPath)) {
             return;
         }

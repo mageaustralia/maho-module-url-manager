@@ -239,6 +239,54 @@ class MageAustralia_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Ad/analytics click identifiers that carry no diagnostic value for a 404.
+     * Prefixes end with '_' and match any parameter starting with them.
+     */
+    public const TRACKING_PARAMS = [
+        'fbclid', 'gclid', 'gbraid', 'wbraid', 'dclid', 'msclkid', 'twclid',
+        'ttclid', 'igshid', 'yclid', 'epik', 'srsltid', 'mc_cid', 'mc_eid',
+        '_branch_match_id',
+    ];
+
+    public const TRACKING_PARAM_PREFIXES = ['utm_'];
+
+    /**
+     * Strip ad/analytics click IDs from a URL's query string.
+     *
+     * The same broken path arriving with a different fbclid each time would
+     * otherwise create a new log row per visit, splintering hit_count so a
+     * high-traffic 404 reads as a scatter of one-hit entries. Genuine query
+     * parameters are preserved - a broken '?p=2' is a real thing to fix.
+     */
+    public function stripTrackingParams(string $url): string
+    {
+        if (!str_contains($url, '?')) {
+            return $url;
+        }
+
+        [$path, $query] = explode('?', $url, 2);
+        parse_str($query, $params);
+
+        foreach (array_keys($params) as $key) {
+            $key = (string) $key;
+            if (in_array(strtolower($key), self::TRACKING_PARAMS, true)) {
+                unset($params[$key]);
+                continue;
+            }
+            foreach (self::TRACKING_PARAM_PREFIXES as $prefix) {
+                if (str_starts_with(strtolower($key), $prefix)) {
+                    unset($params[$key]);
+                    break;
+                }
+            }
+        }
+
+        $rebuilt = http_build_query($params);
+
+        return $rebuilt === '' ? $path : $path . '?' . $rebuilt;
+    }
+
+    /**
      * Check if product suggestions are enabled
      */
     public function isProductSuggestionsEnabled(?int $storeId = null): bool

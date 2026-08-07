@@ -43,10 +43,12 @@ class MageAustralia_UrlManager_Block_Adminhtml_Notfoundlog_Grid extends Mage_Adm
         $this->addColumn('request_url', [
             'header' => Mage::helper('mageaustralia_urlmanager')->__('Request URL'),
             'index' => 'request_url',
+            'renderer' => 'mageaustralia_urlmanager/adminhtml_notfoundlog_renderer_url',
         ]);
         $this->addColumn('referer_url', [
             'header' => Mage::helper('mageaustralia_urlmanager')->__('Referer URL'),
             'index' => 'referer_url',
+            'renderer' => 'mageaustralia_urlmanager/adminhtml_notfoundlog_renderer_url',
         ]);
         $this->addColumn('ip_address', [
             'header' => Mage::helper('mageaustralia_urlmanager')->__('IP Address'),
