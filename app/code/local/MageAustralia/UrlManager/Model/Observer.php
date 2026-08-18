@@ -125,11 +125,99 @@ class MageAustralia_UrlManager_Model_Observer
      */
     protected function findManualRedirectUrl(Mage_Core_Controller_Request_Http $request): ?string
     {
+        $redirect = $this->findManualRedirect($request);
+        if (!$redirect) {
+            return null;
+        }
+
+        return Mage::helper('mageaustralia_urlmanager')
+            ->resolveDestinationUrl((string) $redirect->getDestinationUrl());
+    }
+
+    /**
+     * Apply a manual URL Manager redirect when the response is a 404.
+     *
+     * Manual redirects were previously only reachable from handleDisabledProductRedirect(),
+     * which bails unless the request is a catalog/product/view for a DISABLED product. Any
+     * redirect whose source is a category, layered-nav or otherwise non-product URL could
+     * therefore never fire, and its hit_count stayed at 0 forever. A stale URL actually
+     * lands on a 404, so that is where the lookup belongs.
+     */
+    public function handleManualRedirect(\Maho\Event\Observer $observer): void
+    {
         /** @var MageAustralia_UrlManager_Helper_Data $helper */
         $helper = Mage::helper('mageaustralia_urlmanager');
 
-        // Use the original request path, because by the time this event fires
-        // Maho has already rewritten the route path to catalog/product/view/id/...
+        if (!$helper->isEnabled()) {
+            return;
+        }
+
+        if (!$this->isNotFoundResponse()) {
+            return;
+        }
+
+        $redirect = $this->findManualRedirect(Mage::app()->getRequest());
+        if (!$redirect) {
+            return;
+        }
+
+        $url = $helper->resolveDestinationUrl((string) $redirect->getDestinationUrl());
+        if ($url === '') {
+            return;
+        }
+
+        // Honour the status code configured on the row; fall back to a permanent
+        // redirect only when the stored value is not a usable redirect code.
+        $statusCode = (int) $redirect->getStatusCode();
+        if (!in_array($statusCode, [301, 302, 303, 307, 308], true)) {
+            $statusCode = 301;
+        }
+
+        try {
+            $redirect->setHitCount((int) $redirect->getHitCount() + 1)
+                ->setLastHitAt(Mage_Core_Model_Locale::nowUtc())
+                ->save();
+        } catch (Throwable $e) {
+            // A counter failure must never cost the shopper their redirect.
+            Mage::log(
+                'URL Manager: hit counter update failed - ' . $e->getMessage(),
+                Mage::LOG_WARNING,
+                'mageaustralia_urlmanager.log',
+            );
+        }
+
+        Mage::app()->getResponse()->setRedirect($url, $statusCode)->sendResponse();
+        exit;
+    }
+
+    /**
+     * True when the response already carries a 404 status header.
+     */
+    protected function isNotFoundResponse(): bool
+    {
+        foreach (Mage::app()->getResponse()->getHeaders() as $header) {
+            if (strtolower((string) $header['name']) === 'status'
+                && str_contains((string) $header['value'], '404')
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Find the active manual redirect matching this request, or null.
+     *
+     * Exact (non-wildcard) sources are resolved with an indexed lookup first so the
+     * common case costs one query. Only wildcard rows are walked in PHP, because
+     * their patterns cannot be expressed as an indexed comparison.
+     */
+    protected function findManualRedirect(Mage_Core_Controller_Request_Http $request): ?MageAustralia_UrlManager_Model_Redirect
+    {
+        /** @var MageAustralia_UrlManager_Helper_Data $helper */
+        $helper = Mage::helper('mageaustralia_urlmanager');
+
         $requestPath = trim($request->getOriginalPathInfo(), '/');
         if ($requestPath === '') {
             return null;
@@ -149,7 +237,8 @@ class MageAustralia_UrlManager_Model_Observer
                 continue;
             }
 
-            // Match both full URLs and their path component so dev/staging work
+            // Match both full URLs and their path component, so a redirect entered
+            // with the production hostname still fires on dev/staging.
             $candidates = [$sourceUrl];
             if (str_starts_with($sourceUrl, 'http://') || str_starts_with($sourceUrl, 'https://')) {
                 $sourcePath = trim((string) (parse_url($sourceUrl, PHP_URL_PATH) ?: ''), '/');
@@ -171,7 +260,7 @@ class MageAustralia_UrlManager_Model_Observer
                 }
 
                 if ($isMatch) {
-                    return $helper->resolveDestinationUrl((string) $redirect->getDestinationUrl());
+                    return $redirect;
                 }
             }
         }

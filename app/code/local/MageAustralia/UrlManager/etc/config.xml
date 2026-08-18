@@ -103,6 +103,10 @@
             <!-- 404 Logger -->
             <controller_front_send_response_before>
                 <observers>
+                    <mageaustralia_urlmanager_manual_redirect>
+                        <class>mageaustralia_urlmanager/observer</class>
+                        <method>handleManualRedirect</method>
+                    </mageaustralia_urlmanager_manual_redirect>
                     <mageaustralia_urlmanager_log_not_found>
                         <class>mageaustralia_urlmanager/observer</class>
                         <method>logNotFound</method>
