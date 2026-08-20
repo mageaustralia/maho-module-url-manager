@@ -8,26 +8,74 @@
  * @license    https://opensource.org/licenses/AFL-3.0  Academic Free License (AFL 3.0)
  */
 /**
+ * Rows for the 404 report email.
+ *
+ * Split into two groups because the remedy differs: a slug URL needs a
+ * redirect, while an internal catalog route means something still links to an
+ * entity that is disabled or deleted - so that group carries the entity name
+ * and an admin edit link instead of leaving you to decode an id.
+ *
  * @var $this Mage_Core_Block_Template
- * @var array $top_404s
  */
-$top_404s = $this->getTop404s();
-if (!is_array($top_404s)) {
-    $top_404s = [];
+$catalogRoutes = $this->getCatalogRoutes();
+$slugUrls = $this->getSlugUrls();
+
+if (!is_array($catalogRoutes)) {
+    $catalogRoutes = [];
+}
+if (!is_array($slugUrls)) {
+    $slugUrls = [];
 }
 
-foreach ($top_404s as $index => $log):
-    $rowColor = ($index % 2 === 0) ? '#FFFFFF' : '#F9F9F9';
+// Older callers passed a single flat list; fall back to it so a stale template
+// cache cannot produce an empty email.
+if ($catalogRoutes === [] && $slugUrls === []) {
+    $slugUrls = is_array($this->getTop404s()) ? $this->getTop404s() : [];
+}
+
+$sections = [
+    ['title' => 'Disabled or deleted entities (still linked)', 'rows' => $catalogRoutes],
+    ['title' => 'Store URLs with no redirect', 'rows' => $slugUrls],
+];
+
+foreach ($sections as $section):
+    if ($section['rows'] === []) {
+        continue;
+    }
+?>
+<tr>
+    <td colspan="3" style="padding:12px 10px 6px; font-size:12px; font-weight:bold; color:#2C3E50; text-transform:uppercase; letter-spacing:0.5px; border-bottom:2px solid #E0E0E0;">
+        <?php echo $this->escapeHtml($section['title']); ?>
+        (<?php echo count($section['rows']); ?>)
+    </td>
+</tr>
+<?php
+    foreach ($section['rows'] as $index => $log):
+        $rowColor = ($index % 2 === 0) ? '#FFFFFF' : '#F9F9F9';
+        $entityLabel = isset($log['entity_label']) ? (string) $log['entity_label'] : '';
+        $entityUrl = isset($log['entity_url']) ? (string) $log['entity_url'] : '';
 ?>
 <tr style="background:<?php echo $rowColor; ?>">
     <td style="padding:10px; border-bottom:1px solid #E0E0E0; font-size:13px; color:#555555; word-break:break-all;">
         <?php echo $this->escapeHtml($log['request_url']); ?>
+        <?php if ($entityLabel !== ''): ?>
+            <br>
+            <?php if ($entityUrl !== ''): ?>
+                <a href="<?php echo $this->escapeUrl($entityUrl); ?>" style="color:#3498DB; text-decoration:none; font-size:12px;">
+                    <?php echo $this->escapeHtml($entityLabel); ?>
+                </a>
+            <?php else: ?>
+                <span style="color:#7F8C8D; font-size:12px;"><?php echo $this->escapeHtml($entityLabel); ?></span>
+            <?php endif; ?>
+        <?php endif; ?>
     </td>
     <td align="center" style="padding:10px; border-bottom:1px solid #E0E0E0; font-size:13px; color:#555555;">
-        <strong><?php echo (int)$log['hit_count']; ?></strong>
+        <strong><?php echo (int) $log['hit_count']; ?></strong>
     </td>
     <td align="center" style="padding:10px; border-bottom:1px solid #E0E0E0; font-size:12px; color:#7F8C8D;">
         <?php echo $this->formatDate($log['last_hit_at'], 'short'); ?>
     </td>
 </tr>
-<?php endforeach; ?>
+<?php
+    endforeach;
+endforeach;

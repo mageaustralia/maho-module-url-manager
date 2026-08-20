@@ -331,6 +331,9 @@ class MageAustralia_UrlManager_Model_Observer
             $log = $collection->getFirstItem();
             $log->setHitCount($log->getHitCount() + 1);
             $log->setLastHitAt(Mage_Core_Model_Locale::nowUtc());
+            // Re-stamp: rows predating the column carry the 0 backfill default,
+            // and the configured URL suffix can change under us.
+            $log->setCatalogConfidence($helper->getCatalogConfidence($requestPath));
         } else {
             // Create new entry
             $log = Mage::getModel('mageaustralia_urlmanager/notfoundlog');
@@ -342,6 +345,7 @@ class MageAustralia_UrlManager_Model_Observer
                 'store_id' => Mage::app()->getStore()->getId(),
                 'hit_count' => 1,
                 'last_hit_at' => Mage_Core_Model_Locale::nowUtc(),
+                'catalog_confidence' => $helper->getCatalogConfidence($requestPath),
             ]);
 
             // Try to find suggested product using fuzzy matching
@@ -498,8 +502,16 @@ class MageAustralia_UrlManager_Model_Observer
         $collection = Mage::getResourceModel('mageaustralia_urlmanager/notfoundlog_collection');
 
         if ($collection->getSize() > $maxEntries) {
-            // Delete oldest entries (keep only max entries)
+            // Evict probes first, then 'possible', and only then real catalog
+            // 404s - oldest-first within each tier.
+            //
+            // Plain oldest-first destroyed the report's whole purpose: scanner
+            // traffic filled the budget so fast that the table held barely two
+            // days, and genuine product 404s were deleted before anyone read
+            // them. Making probes the shock absorber keeps weeks of catalog
+            // history in the same number of rows.
             $idsToDelete = $collection
+                ->setOrder('catalog_confidence', 'ASC')
                 ->setOrder('last_hit_at', 'ASC')
                 ->setPageSize($collection->getSize() - $maxEntries)
                 ->getColumnValues('notfound_log_id');
@@ -573,6 +585,67 @@ class MageAustralia_UrlManager_Model_Observer
     /**
      * Send daily 404 report
      */
+    /**
+     * Resolve an internal catalog route (catalog/product/view/id/123) to the
+     * entity it points at, so the report can say "Head Speed MP - disabled"
+     * with an edit link instead of leaving an id to decode by hand.
+     *
+     * Returns null when the path is not a catalog route. A route whose entity
+     * no longer exists still returns a row - "deleted" is the answer you want,
+     * not a blank.
+     *
+     * @return array{label: string, url: string}|null
+     */
+    protected function describeCatalogRoute(string $requestUrl): ?array
+    {
+        $path = parse_url($requestUrl, PHP_URL_PATH);
+        if (!is_string($path) || $path === '') {
+            $path = $requestUrl;
+        }
+
+        if (preg_match('#(^|/)catalog/(product|category)/view/id/(\d+)#i', strtolower(trim($path, '/')), $m) !== 1) {
+            return null;
+        }
+
+        $type = $m[2];
+        $entityId = (int) $m[3];
+
+        try {
+            if ($type === 'product') {
+                $product = Mage::getModel('catalog/product')->load($entityId);
+                if (!$product->getId()) {
+                    return ['label' => sprintf('Product %d - deleted', $entityId), 'url' => ''];
+                }
+
+                $status = (int) $product->getStatus() === Mage_Catalog_Model_Product_Status::STATUS_DISABLED
+                    ? 'disabled'
+                    : 'enabled';
+
+                return [
+                    'label' => sprintf('%s (%s) - %s', (string) $product->getName(), (string) $product->getSku(), $status),
+                    'url' => Mage::helper('adminhtml')->getUrl('adminhtml/catalog_product/edit', ['id' => $entityId]),
+                ];
+            }
+
+            $category = Mage::getModel('catalog/category')->load($entityId);
+            if (!$category->getId()) {
+                return ['label' => sprintf('Category %d - deleted', $entityId), 'url' => ''];
+            }
+
+            $status = $category->getIsActive() ? 'active' : 'inactive';
+
+            return [
+                'label' => sprintf('%s - %s', (string) $category->getName(), $status),
+                'url' => Mage::helper('adminhtml')->getUrl('adminhtml/catalog_category/edit', ['id' => $entityId]),
+            ];
+        } catch (Exception $e) {
+            // A lookup failure must not cost us the whole report.
+            Mage::logException($e);
+
+            return ['label' => sprintf('%s %d', ucfirst($type), $entityId), 'url' => ''];
+        }
+    }
+
     public function sendDailyReport(): void
     {
         /** @var MageAustralia_UrlManager_Helper_Data $helper */
@@ -630,6 +703,7 @@ class MageAustralia_UrlManager_Model_Observer
         /** @var MageAustralia_UrlManager_Model_Resource_Notfoundlog_Collection $collection */
         $collection = Mage::getResourceModel('mageaustralia_urlmanager/notfoundlog_collection')
             ->addFieldToFilter('hit_count', ['gteq' => $minimumHits])
+            ->addFieldToFilter('catalog_confidence', MageAustralia_UrlManager_Helper_Data::CATALOG_CONFIDENCE_CONFIDENT)
             ->setOrder('hit_count', 'DESC')
             ->setPageSize(50);
 
@@ -637,14 +711,40 @@ class MageAustralia_UrlManager_Model_Observer
             '(last_reported_at IS NULL OR last_hit_at > last_reported_at)',
         );
 
+        // Counted, not listed: how many probes we held back this run. Reported
+        // so a filter that is too aggressive shows up as a number rather than
+        // as URLs that quietly never arrive.
+        $suppressed = Mage::getResourceModel('mageaustralia_urlmanager/notfoundlog_collection')
+            ->addFieldToFilter('hit_count', ['gteq' => $minimumHits])
+            ->addFieldToFilter('catalog_confidence', ['lt' => MageAustralia_UrlManager_Helper_Data::CATALOG_CONFIDENCE_CONFIDENT]);
+        $suppressed->getSelect()->where('(last_reported_at IS NULL OR last_hit_at > last_reported_at)');
+        $suppressedCount = (int) $suppressed->getSize();
+
+        // Two groups, because the remedy differs: a slug URL wants a redirect,
+        // an internal catalog route means a linked entity is disabled or gone.
+        $catalogRoutes = [];
+        $slugUrls = [];
         $top404s = [];
         $reportedIds = [];
         foreach ($collection as $log) {
-            $top404s[] = [
+            $row = [
                 'request_url' => $log->getRequestUrl(),
                 'hit_count' => $log->getHitCount(),
                 'last_hit_at' => $log->getLastHitAt(),
+                'entity_label' => '',
+                'entity_url' => '',
             ];
+
+            $entity = $this->describeCatalogRoute((string) $log->getRequestUrl());
+            if ($entity !== null) {
+                $row['entity_label'] = $entity['label'];
+                $row['entity_url'] = $entity['url'];
+                $catalogRoutes[] = $row;
+            } else {
+                $slugUrls[] = $row;
+            }
+
+            $top404s[] = $row;
             $reportedIds[] = (int) $log->getId();
         }
 
@@ -685,6 +785,9 @@ class MageAustralia_UrlManager_Model_Observer
                 'period' => $period,
                 'total_404s' => count($top404s),
                 'top_404s' => $top404s,
+                'catalog_routes' => $catalogRoutes,
+                'slug_urls' => $slugUrls,
+                'suppressed_count' => $suppressedCount,
                 'store_name' => Mage::app()->getStore()->getName(),
                 'admin_url' => Mage::helper('adminhtml')->getUrl('adminhtml/redirect/notfoundlog'),
             ];

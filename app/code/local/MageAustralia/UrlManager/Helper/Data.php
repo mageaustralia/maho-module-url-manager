@@ -358,4 +358,107 @@ class MageAustralia_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
         return (int) Mage::getStoreConfig(self::XML_PATH_EMAIL_MINIMUM_HITS, $storeId) ?: 10;
     }
 
+    /**
+     * Confidence that a 404 path is a real store URL rather than a probe.
+     *
+     * The 404 report exists to surface catalog URLs that lost their redirect.
+     * Ranking by hit_count alone can never do that: a vulnerability scanner
+     * hits one path 20+ times while a customer following a dead product link
+     * hits it once, so scanners take every slot. Worse, they also consumed the
+     * whole max_log_entries budget, evicting real 404s within days.
+     *
+     * Classifying on the way in fixes both: the report filters to CONFIDENT,
+     * and cleanup evicts the low tiers first so real 404s survive.
+     *
+     * Deliberately an allowlist. Scanners invent new paths constantly, so a
+     * blocklist needs endless maintenance; the shape of OUR urls does not
+     * change.
+     */
+    public const CATALOG_CONFIDENCE_PROBE = 0;
+    public const CATALOG_CONFIDENCE_POSSIBLE = 1;
+    public const CATALOG_CONFIDENCE_CONFIDENT = 2;
+
+    /**
+     * First path segments that are never a catalog URL. Only needed to keep
+     * asset paths (js/blank.html) out of the CONFIDENT tier - the suffix and
+     * route tests below already exclude the bulk of probe traffic.
+     */
+    public const NON_CATALOG_PREFIXES = [
+        'js', 'css', 'media', 'skin', 'static', 'assets', 'api', 'rest',
+        'graphql', 'admin', 'administrator', 'plugins', 'modules', 'vendor',
+        'libraries', 'templates', 'uploads', 'upload', 'images', 'cgi-bin',
+        'wordpress', 'sitecore', 'actuator', 'solr', 'phpmyadmin', 'typo3',
+        'joomla', 'bitrix', 'laravel', 'telescope', 'console', 'webinterface',
+        'endpoints', '_ignition', '_profiler', '__debug__', '.git', '.env',
+        '.aws', '.well-known', 'server-status', 'server-info', 'webdav',
+    ];
+
+    /**
+     * Classify a logged 404 path. Returns one of the CATALOG_CONFIDENCE_* values.
+     */
+    public function getCatalogConfidence(string $url, ?int $storeId = null): int
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+        if (!is_string($path) || $path === '') {
+            $path = $url;
+        }
+        $path = strtolower(trim($path, '/'));
+
+        if ($path === '' || str_contains($path, 'index.php')) {
+            return self::CATALOG_CONFIDENCE_PROBE;
+        }
+
+        $segments = explode('/', $path);
+        $first = $segments[0];
+
+        if (str_starts_with($first, 'wp-') || in_array($first, self::NON_CATALOG_PREFIXES, true)) {
+            return self::CATALOG_CONFIDENCE_PROBE;
+        }
+
+        // Internal catalog route - the strongest signal there is, and it hands
+        // us the entity id directly rather than a slug to go looking for.
+        if (preg_match('#(^|/)catalog/(product|category)/view(/|$)#', $path) === 1) {
+            return self::CATALOG_CONFIDENCE_CONFIDENT;
+        }
+
+        $last = $segments[count($segments) - 1];
+
+        // Catalog URL suffix. Tested BEFORE the extension rejection below,
+        // since .html is itself an extension.
+        foreach ($this->getCatalogUrlSuffixes($storeId) as $suffix) {
+            if ($suffix !== '' && str_ends_with($last, $suffix)) {
+                return self::CATALOG_CONFIDENCE_CONFIDENT;
+            }
+        }
+
+        // Any other file extension is a probe (.php7, .jsp, .do, .xml, ...).
+        if (preg_match('/\.[a-z0-9]{1,7}$/', $last) === 1) {
+            return self::CATALOG_CONFIDENCE_PROBE;
+        }
+
+        // Extensionless and not stop-listed. Could be a suffix-less category
+        // or a CMS page, could be a probe - kept out of the email, visible in
+        // the admin grid.
+        return self::CATALOG_CONFIDENCE_POSSIBLE;
+    }
+
+    /**
+     * Configured product/category URL suffixes, normalised to include the dot.
+     *
+     * @return string[]
+     */
+    public function getCatalogUrlSuffixes(?int $storeId = null): array
+    {
+        $suffixes = [];
+        foreach (['catalog/seo/product_url_suffix', 'catalog/seo/category_url_suffix'] as $path) {
+            $suffix = trim((string) Mage::getStoreConfig($path, $storeId));
+            if ($suffix === '') {
+                continue;
+            }
+            $suffixes[] = str_starts_with($suffix, '.') ? strtolower($suffix) : '.' . strtolower($suffix);
+        }
+
+        return array_values(array_unique($suffixes)) ?: ['.html'];
+    }
+
 }

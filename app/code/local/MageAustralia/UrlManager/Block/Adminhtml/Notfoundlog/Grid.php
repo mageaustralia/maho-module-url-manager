@@ -72,6 +72,19 @@ class MageAustralia_UrlManager_Block_Adminhtml_Notfoundlog_Grid extends Mage_Adm
             'index' => 'last_hit_at',
             'type' => 'datetime',
         ]);
+        // The emailed report only lists 'Confident' rows. Surfacing the tier
+        // here keeps the suppressed traffic one filter away rather than hidden,
+        // so an over-eager classifier is visible instead of silent.
+        $this->addColumn('catalog_confidence', [
+            'header' => Mage::helper('mageaustralia_urlmanager')->__('Store URL?'),
+            'index' => 'catalog_confidence',
+            'type' => 'options',
+            'options' => [
+                MageAustralia_UrlManager_Helper_Data::CATALOG_CONFIDENCE_CONFIDENT => Mage::helper('mageaustralia_urlmanager')->__('Confident (reported)'),
+                MageAustralia_UrlManager_Helper_Data::CATALOG_CONFIDENCE_POSSIBLE => Mage::helper('mageaustralia_urlmanager')->__('Possible'),
+                MageAustralia_UrlManager_Helper_Data::CATALOG_CONFIDENCE_PROBE => Mage::helper('mageaustralia_urlmanager')->__('Probe / scanner'),
+            ],
+        ]);
 
         $this->addColumn('action', [
             'header' => Mage::helper('mageaustralia_urlmanager')->__('Action'),

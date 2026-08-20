@@ -59,9 +59,13 @@ return function (Schema $schema): void {
     $log->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true, 'default' => 'CURRENT_TIMESTAMP']);
     $log->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => true, 'default' => 'CURRENT_TIMESTAMP', 'columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
     $log->addColumn('last_reported_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'Last included in an emailed report; NULL = never reported']);
+    $log->addColumn('catalog_confidence', Types::SMALLINT, ['notnull' => true, 'default' => 0, 'comment' => 'Is this a real store URL: 0=probe, 1=possible, 2=confident']);
     $log->addPrimaryKeyConstraint(
         PrimaryKeyConstraint::editor()->setUnquotedColumnNames('notfound_log_id')->create(),
     );
     $log->addIndex(['last_reported_at'], 'IDX_MAGEAUS_URLMANAGER_NOTFOUNDLOG_LAST_REPORTED_AT');
+    // Serves both the report filter (confidence = 2) and the cleanup sweep,
+    // which deletes lowest-confidence-oldest-first.
+    $log->addIndex(['catalog_confidence', 'last_hit_at'], 'IDX_MAGEAUS_URLMANAGER_NOTFOUNDLOG_CONFIDENCE_HIT');
     $log->setComment('URL Manager - 404 log');
 };

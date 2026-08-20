@@ -32,9 +32,14 @@
                         <p style="font-size:14px; line-height:20px; margin:0 0 15px 0; color:#555555;">
                             Total 404 errors with significant traffic: <strong>{{var total_404s}}</strong>
                         </p>
+                        <p style="font-size:12px; line-height:18px; margin:0 0 15px 0; color:#7F8C8D;">
+                            Scanner and probe traffic hidden from this report: <strong>{{var suppressed_count}}</strong>.
+                            These are paths that do not look like store URLs (.php probes, admin panel
+                            fishing, and so on). They stay visible in the admin 404 log.
+                        </p>
 
                         <h2 style="font-size:18px; font-weight:normal; line-height:22px; margin:20px 0 15px 0; color:#3D3D3D;">
-                            Top 404 URLs
+                            Catalog URLs to fix
                         </h2>
 
                         <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border-collapse:collapse;">
@@ -52,7 +57,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{block type='core/template' area='frontend' template='email/mageaustralia_urlmanager/404_report_rows.phtml' top_404s=$top_404s}}
+                                {{block type='core/template' area='frontend' template='email/mageaustralia_urlmanager/404_report_rows.phtml' top_404s=$top_404s catalog_routes=$catalog_routes slug_urls=$slug_urls}}
                             </tbody>
                         </table>
 
