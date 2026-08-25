@@ -191,6 +191,91 @@ class MageAustralia_UrlManager_Model_Observer
     }
 
     /**
+     * Salvage a product URL that 404s only because its category path is gone.
+     *
+     * Category-prefixed product rewrites (<category>/<product>.html) 404 when the
+     * category is removed, disabled, or no longer in this store's tree - even though
+     * the product is live at its plain URL. Rather than serve a 404, resolve the
+     * trailing product segment to its plain product rewrite in this store and 301
+     * there. Runs before logNotFound so a salvaged hit is never logged as an
+     * unresolved 404.
+     */
+    public function handleOrphanedCategoryProductRedirect(\Maho\Event\Observer $observer): void
+    {
+        /** @var MageAustralia_UrlManager_Helper_Data $helper */
+        $helper = Mage::helper('mageaustralia_urlmanager');
+
+        if (!$helper->isEnabled() || !$helper->shouldRedirectOrphanedCategoryProducts()) {
+            return;
+        }
+
+        if (!$this->isNotFoundResponse()) {
+            return;
+        }
+
+        // Path only, no query string. A top-level URL has no category context to lose.
+        $path = trim((string) Mage::app()->getRequest()->getOriginalPathInfo(), '/');
+        if ($path === '' || !str_contains($path, '/')) {
+            return;
+        }
+
+        $lastSegment = substr($path, strrpos($path, '/') + 1);
+        if ($lastSegment === '' || $lastSegment === $path) {
+            return;
+        }
+
+        $storeId = (int) Mage::app()->getStore()->getId();
+        $plainPath = $this->findPlainProductRewrite($lastSegment, $storeId);
+        if ($plainPath === null) {
+            return;
+        }
+
+        $url = rtrim(Mage::app()->getStore()->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK), '/')
+            . '/' . ltrim($plainPath, '/');
+
+        Mage::log(
+            sprintf('URL Manager: orphaned category path %s -> plain product %s', $path, $plainPath),
+            Mage::LOG_INFO,
+            'mageaustralia_urlmanager.log',
+        );
+
+        Mage::app()->getResponse()->setRedirect($url, 301)->sendResponse();
+        exit;
+    }
+
+    /**
+     * Resolve a plain (non-category, non-redirect) product rewrite for the given
+     * request path in the given store, or null. Restricted to product targets so a
+     * stale category-path segment never redirects into another category.
+     */
+    protected function findPlainProductRewrite(string $requestPath, int $storeId): ?string
+    {
+        /** @var Mage_Core_Model_Resource $resource */
+        $resource = Mage::getSingleton('core/resource');
+        $read = $resource->getConnection('core_read');
+        $select = $read->select()
+            ->from($resource->getTableName('core/url_rewrite'), ['request_path', 'options'])
+            ->where('request_path = ?', $requestPath)
+            ->where('store_id IN (?)', [$storeId, 0])
+            ->where('target_path LIKE ?', 'catalog/product/view/id/%')
+            ->where('target_path NOT LIKE ?', '%/category/%')
+            ->order('store_id DESC')
+            ->limit(1);
+
+        $row = $read->fetchRow($select);
+        if (!$row) {
+            return null;
+        }
+
+        // Never chain into another redirect row.
+        if (in_array(strtoupper((string) ($row['options'] ?? '')), ['R', 'RP'], true)) {
+            return null;
+        }
+
+        return (string) $row['request_path'];
+    }
+
+    /**
      * True when the response already carries a 404 status header.
      */
     protected function isNotFoundResponse(): bool

@@ -40,6 +40,7 @@ class MageAustralia_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     public const XML_PATH_AUTO_DISABLED_PRODUCTS = 'mageaustralia_urlmanager/auto_redirects/disabled_products';
     public const XML_PATH_AUTO_NOT_VISIBLE_PRODUCTS = 'mageaustralia_urlmanager/auto_redirects/not_visible_products';
     public const XML_PATH_AUTO_DISABLED_CATEGORIES = 'mageaustralia_urlmanager/auto_redirects/disabled_categories';
+    public const XML_PATH_AUTO_ORPHANED_CATEGORY_PRODUCTS = 'mageaustralia_urlmanager/auto_redirects/orphaned_category_products';
 
     public const XML_PATH_CSV_DELIMITER = 'mageaustralia_urlmanager/csv/delimiter';
     public const XML_PATH_CSV_ENCLOSURE = 'mageaustralia_urlmanager/csv/enclosure';
@@ -88,6 +89,16 @@ class MageAustralia_UrlManager_Helper_Data extends Mage_Core_Helper_Abstract
     public function shouldRedirectDisabledCategories(?int $storeId = null): bool
     {
         return Mage::getStoreConfigFlag(self::XML_PATH_AUTO_DISABLED_CATEGORIES, $storeId);
+    }
+
+    /**
+     * Check whether a product URL that 404s because of a stale/foreign category
+     * path (category removed, disabled, or not in this store's tree) should be
+     * redirected to the product's plain canonical URL instead of showing a 404.
+     */
+    public function shouldRedirectOrphanedCategoryProducts(?int $storeId = null): bool
+    {
+        return Mage::getStoreConfigFlag(self::XML_PATH_AUTO_ORPHANED_CATEGORY_PRODUCTS, $storeId);
     }
 
     /**

@@ -107,6 +107,10 @@
                         <class>mageaustralia_urlmanager/observer</class>
                         <method>handleManualRedirect</method>
                     </mageaustralia_urlmanager_manual_redirect>
+                    <mageaustralia_urlmanager_orphaned_category_redirect>
+                        <class>mageaustralia_urlmanager/observer</class>
+                        <method>handleOrphanedCategoryProductRedirect</method>
+                    </mageaustralia_urlmanager_orphaned_category_redirect>
                     <mageaustralia_urlmanager_log_not_found>
                         <class>mageaustralia_urlmanager/observer</class>
                         <method>logNotFound</method>
@@ -161,5 +165,13 @@
             </mageaustralia_urlmanager_send_weekly_report>
         </jobs>
     </crontab>
+
+    <default>
+        <mageaustralia_urlmanager>
+            <auto_redirects>
+                <orphaned_category_products>1</orphaned_category_products>
+            </auto_redirects>
+        </mageaustralia_urlmanager>
+    </default>
 
 </config>
