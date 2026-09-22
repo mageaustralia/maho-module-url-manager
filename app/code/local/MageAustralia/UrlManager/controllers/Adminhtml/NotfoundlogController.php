@@ -26,7 +26,10 @@ class MageAustralia_UrlManager_Adminhtml_NotfoundlogController extends Mage_Admi
     {
         // CSRF: save (edit form), delete (Form_Container button includes
         // form_key), and massDelete (grid massaction) all carry form_key.
-        $this->_setForcedFormKeyActions(['save', 'delete', 'massDelete']);
+        // Removed in Maho 26.9, where core key-checks every admin request itself
+        if (method_exists($this, '_setForcedFormKeyActions')) {
+            $this->_setForcedFormKeyActions(['save', 'delete', 'massDelete']);
+        }
         return parent::preDispatch();
     }
 
