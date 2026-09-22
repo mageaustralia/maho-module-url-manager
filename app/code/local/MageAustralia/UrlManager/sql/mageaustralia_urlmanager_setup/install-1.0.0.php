@@ -67,12 +67,12 @@ $table = $installer->getConnection()
         'default'   => '1',
         'comment'   => 'Status',
     ], 'Status')
-    ->addColumn('created_at', Maho\Db\Ddl\Table::TYPE_TIMESTAMP, null, [
+    ->addColumn('created_at', Maho\Db\Ddl\Table::TYPE_DATETIME, null, [
         'nullable'  => false,
         'default'   => Maho\Db\Ddl\Table::TIMESTAMP_INIT,
         'comment'   => 'Created At',
     ], 'Created At')
-    ->addColumn('updated_at', Maho\Db\Ddl\Table::TYPE_TIMESTAMP, null, [
+    ->addColumn('updated_at', Maho\Db\Ddl\Table::TYPE_DATETIME, null, [
         'nullable'  => false,
         'default'   => Maho\Db\Ddl\Table::TIMESTAMP_INIT_UPDATE,
         'comment'   => 'Updated At',
@@ -128,12 +128,12 @@ $table = $installer->getConnection()
         'default'   => '1',
         'comment'   => 'Status',
     ], 'Status')
-    ->addColumn('created_at', Maho\Db\Ddl\Table::TYPE_TIMESTAMP, null, [
+    ->addColumn('created_at', Maho\Db\Ddl\Table::TYPE_DATETIME, null, [
         'nullable'  => false,
         'default'   => Maho\Db\Ddl\Table::TIMESTAMP_INIT,
         'comment'   => 'Created At',
     ], 'Created At')
-    ->addColumn('updated_at', Maho\Db\Ddl\Table::TYPE_TIMESTAMP, null, [
+    ->addColumn('updated_at', Maho\Db\Ddl\Table::TYPE_DATETIME, null, [
         'nullable'  => false,
         'default'   => Maho\Db\Ddl\Table::TIMESTAMP_INIT_UPDATE,
         'comment'   => 'Updated At',

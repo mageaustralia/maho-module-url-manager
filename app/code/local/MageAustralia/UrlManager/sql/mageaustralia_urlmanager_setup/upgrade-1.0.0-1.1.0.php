@@ -25,7 +25,7 @@ $installer->getConnection()->addColumn(
     $installer->getTable('mageaustralia_urlmanager/notfoundlog'),
     'last_reported_at',
     [
-        'type'    => Maho\Db\Ddl\Table::TYPE_TIMESTAMP,
+        'type'    => Maho\Db\Ddl\Table::TYPE_DATETIME,
         'default' => null,
         'comment' => 'Timestamp this 404 was last included in an emailed report; NULL = never reported',
     ],
